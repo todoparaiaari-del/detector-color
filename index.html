@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Color Detector">
+  <meta name="theme-color" content="#ffffff">
+  <title>Detector de Color</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f5f5f5; }
+    #app { padding: 1rem; max-width: 480px; margin: 0 auto; }
+    h1 { font-size: 20px; font-weight: 600; margin-bottom: 1rem; color: #111; }
+    #upload-area {
+      border: 2px dashed #ccc;
+      border-radius: 16px;
+      padding: 2.5rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      background: white;
+    }
+    .upload-icon { font-size: 40px; margin-bottom: 0.75rem; }
+    .upload-title { font-size: 16px; font-weight: 500; color: #111; margin-bottom: 4px; }
+    .upload-sub { font-size: 13px; color: #888; }
+    #file-input { display: none; }
+    #canvas-wrap { position: relative; display: none; }
+    #canvas { width: 100%; border-radius: 16px; cursor: crosshair; display: block; border: 1px solid #ddd; }
+    #crosshair {
+      position: absolute;
+      width: 28px; height: 28px;
+      border: 2.5px solid white;
+      border-radius: 50%;
+      box-shadow: 0 0 0 1.5px #000;
+      pointer-events: none;
+      display: none;
+      transform: translate(-50%, -50%);
+    }
+    #result-card {
+      display: none;
+      margin-top: 1rem;
+      background: white;
+      border: 1px solid #eee;
+      border-radius: 16px;
+      padding: 1rem 1.25rem;
+      align-items: center;
+      gap: 16px;
+    }
+    #color-swatch {
+      width: 56px; height: 56px;
+      border-radius: 10px;
+      flex-shrink: 0;
+      border: 1px solid #eee;
+    }
+    #color-name { font-size: 20px; font-weight: 500; color: #111; }
+    #color-hex { font-size: 13px; color: #888; margin-top: 4px; font-family: monospace; }
+    #loading-msg { font-size: 14px; color: #888; margin-top: 4px; display: none; }
+    #hint { font-size: 13px; color: #888; text-align: center; margin-top: 0.75rem; display: none; }
+    #reset-btn {
+      margin-top: 1rem;
+      width: 100%;
+      padding: 12px;
+      font-size: 15px;
+      border-radius: 12px;
+      border: 1px solid #ddd;
+      background: white;
+      color: #555;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <h1>🎨 Detector de Color</h1>
+
+  <div id="upload-area" onclick="document.getElementById('file-input').click()">
+    <div class="upload-icon">📷</div>
+    <div class="upload-title">Toca para abrir la cámara o subir foto</div>
+    <div class="upload-sub">Luego toca cualquier punto de la imagen</div>
+    <input type="file" id="file-input" accept="image/*" capture="environment">
+  </div>
+
+  <div id="canvas-wrap">
+    <canvas id="canvas"></canvas>
+    <div id="crosshair"></div>
+  </div>
+  <div id="hint">Toca cualquier punto de la imagen para identificar su color</div>
+
+  <div id="result-card">
+    <div id="color-swatch"></div>
+    <div>
+      <div id="color-name">—</div>
+      <div id="color-hex"></div>
+      <div id="loading-msg">Identificando color...</div>
+    </div>
+  </div>
+
+  <button id="reset-btn" style="display:none" onclick="resetApp()">Nueva foto</button>
+</div>
+
+<script>
+const fileInput = document.getElementById('file-input');
+const canvasWrap = document.getElementById('canvas-wrap');
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const resultCard = document.getElementById('result-card');
+const colorSwatch = document.getElementById('color-swatch');
+const colorName = document.getElementById('color-name');
+const colorHex = document.getElementById('color-hex');
+const loadingMsg = document.getElementById('loading-msg');
+const crosshair = document.getElementById('crosshair');
+const hint = document.getElementById('hint');
+const resetBtn = document.getElementById('reset-btn');
+let img = new Image();
+
+fileInput.addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    img.onload = () => {
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      ctx.drawImage(img, 0, 0);
+      document.getElementById('upload-area').style.display = 'none';
+      canvasWrap.style.display = 'block';
+      hint.style.display = 'block';
+      resetBtn.style.display = 'block';
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+canvas.addEventListener('click', handleCanvasClick);
+canvas.addEventListener('touchend', e => {
+  e.preventDefault();
+  const touch = e.changedTouches[0];
+  handleCanvasClick(touch);
+});
+
+function handleCanvasClick(e) {
+  const rect = canvas.getBoundingClientRect();
+  const clickX = e.clientX - rect.left;
+  const clickY = e.clientY - rect.top;
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  const px = Math.round(clickX * scaleX);
+  const py = Math.round(clickY * scaleY);
+
+  crosshair.style.left = clickX + 'px';
+  crosshair.style.top = clickY + 'px';
+  crosshair.style.display = 'block';
+
+  const pixel = ctx.getImageData(px, py, 1, 1).data;
+  const r = pixel[0], g = pixel[1], b = pixel[2];
+  const hex = '#' + [r,g,b].map(v => v.toString(16).padStart(2,'0')).join('');
+
+  colorSwatch.style.background = hex;
+  colorHex.textContent = hex.toUpperCase() + ' · RGB(' + r + ', ' + g + ', ' + b + ')';
+  colorName.textContent = '...';
+  loadingMsg.style.display = 'block';
+  resultCard.style.display = 'flex';
+
+  askClaude(r, g, b, hex);
+}
+
+async function askClaude(r, g, b, hex) {
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 100,
+        messages: [{
+          role: 'user',
+          content: `El usuario ha seleccionado un píxel con estos valores: R=${r}, G=${g}, B=${b} (hex: ${hex}). Dime el nombre descriptivo y poético de este color en español, como lo describirías en una tienda de pinturas o moda. Responde SOLO con el nombre del color, sin explicaciones. Máximo 4 palabras. Ejemplos: "Azul cielo veraniego", "Verde menta fresco", "Gris piedra", "Naranja atardecer".`
+        }]
+      })
+    });
+    const data = await resp.json();
+    const name = data.content?.[0]?.text?.trim() || nombreBasico(r, g, b);
+    colorName.textContent = name;
+  } catch {
+    colorName.textContent = nombreBasico(r, g, b);
+  }
+  loadingMsg.style.display = 'none';
+}
+
+function nombreBasico(r, g, b) {
+  if (r > 200 && g > 200 && b > 200) return 'Blanco';
+  if (r < 50 && g < 50 && b < 50) return 'Negro';
+  if (r > g && r > b) return 'Rojo';
+  if (g > r && g > b) return 'Verde';
+  if (b > r && b > g) return 'Azul';
+  if (r > 180 && g > 180 && b < 100) return 'Amarillo';
+  if (r > 180 && g < 100 && b > 180) return 'Morado';
+  if (r > 180 && g > 100 && b < 80) return 'Naranja';
+  return 'Color mixto';
+}
+
+function resetApp() {
+  document.getElementById('upload-area').style.display = 'block';
+  canvasWrap.style.display = 'none';
+  resultCard.style.display = 'none';
+  crosshair.style.display = 'none';
+  hint.style.display = 'none';
+  resetBtn.style.display = 'none';
+  fileInput.value = '';
+}
+</script>
+</body>
+</html>
