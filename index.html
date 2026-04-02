@@ -58,56 +58,7 @@
     .screen.active {
       opacity: 1;
       pointer-events: all;
-    }
-
-    /* ── SCREEN 1: SPLASH ── */
-    #s1 {
-      background: radial-gradient(ellipse 80% 60% at 50% 40%, #1c0836 0%, var(--bg) 70%);
-      gap: 0;
-    }
-    #s1::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(circle at 20% 80%, rgba(255, 60, 160, 0.06) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(80, 30, 200, 0.08) 0%, transparent 50%);
-      pointer-events: none;
-    }
-    #splash-logo {
-      width: min(75vw, 300px);
-      height: min(75vw, 300px);
-      object-fit: contain;
-      animation: splashPulse 2s ease-in-out infinite alternate;
-      position: relative;
-      z-index: 1;
-    }
-    @keyframes splashPulse {
-      from { filter: drop-shadow(0 0 20px rgba(180,80,255,0.4)) drop-shadow(0 0 60px rgba(255,60,160,0.2)); }
-      to   { filter: drop-shadow(0 0 40px rgba(180,80,255,0.7)) drop-shadow(0 0 80px rgba(255,60,160,0.35)); }
-    }
-    .splash-bar {
-      position: absolute;
-      bottom: 48px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 6px;
-    }
-    .splash-dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: var(--text-dim);
-      animation: dotPulse 1.4s ease-in-out infinite;
-    }
-    .splash-dot:nth-child(2) { animation-delay: 0.2s; }
-    .splash-dot:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes dotPulse {
-      0%, 100% { background: var(--text-dim); transform: scale(1); }
-      50%       { background: var(--accent); transform: scale(1.4); }
-    }
-
-    /* ── SCREEN 2: PALETTE SELECTION ── */
+    }    /* ── SCREEN 2: PALETTE SELECTION ── */
     #s2 {
       justify-content: flex-start;
       padding-top: 52px;
@@ -428,19 +379,8 @@
 <body>
 <div id="app">
 
-  <!-- SCREEN 1: SPLASH -->
-  <div id="s1" class="screen active">
-    <img id="splash-logo" src="Logo.png" alt="CyberDigital Queens"
-         onerror="this.style.opacity='0.3';this.src='data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'><circle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%231a0836\'/><text x=\'50\' y=\'46\' text-anchor=\'middle\' fill=\'%23e0e0f0\' font-size=\'9\' font-family=\'sans-serif\'>CYBER</text><text x=\'50\' y=\'58\' text-anchor=\'middle\' fill=\'%23ff60b0\' font-size=\'9\' font-family=\'sans-serif\'>DIGITAL</text><text x=\'50\' y=\'70\' text-anchor=\'middle\' fill=\'%23e0e0f0\' font-size=\'9\' font-family=\'sans-serif\'>QUEENS</text></svg>'" />
-    <div class="splash-bar">
-      <div class="splash-dot"></div>
-      <div class="splash-dot"></div>
-      <div class="splash-dot"></div>
-    </div>
-  </div>
-
   <!-- SCREEN 2: PALETTE SELECTION -->
-  <div id="s2" class="screen">
+  <div id="s2" class="screen active">
     <div class="app-wordmark">
       <div class="chroma">Chroma</div>
       <span class="lens">Lens</span>
@@ -643,14 +583,6 @@ const ctx2d = cv.getContext('2d');
 /* ── INIT ── */
 window.addEventListener('load', () => {
   buildSwatches();
-  const logo = document.getElementById('splash-logo');
-  const advance = () => setTimeout(() => goTo(2), 3000);
-  if (logo.complete) {
-    advance();
-  } else {
-    logo.addEventListener('load',  advance);
-    logo.addEventListener('error', advance);
-  }
 });
 
 function buildSwatches() {
