@@ -643,7 +643,14 @@ const ctx2d = cv.getContext('2d');
 /* ── INIT ── */
 window.addEventListener('load', () => {
   buildSwatches();
-  setTimeout(() => goTo(2), 3000);
+  const logo = document.getElementById('splash-logo');
+  const advance = () => setTimeout(() => goTo(2), 3000);
+  if (logo.complete) {
+    advance();
+  } else {
+    logo.addEventListener('load',  advance);
+    logo.addEventListener('error', advance);
+  }
 });
 
 function buildSwatches() {
