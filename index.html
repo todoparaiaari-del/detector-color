@@ -335,19 +335,26 @@ function handleTap(e) {
   askClaude(r, g, b, hex);
 }
   async function askClaude(r, g, b, hex) {
+  const mostrar = (nombre) => {
+    document.getElementById('result-name').textContent = nombre;
+    document.getElementById('result-loading').style.display = 'none';
+  };
+
+  const timeout = new Promise((_, reject) =>
+    setTimeout(() => reject('timeout'), 4000)
+  );
+
   try {
     const h = hex.replace('#', '');
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 3000);
-    const resp = await fetch('https://www.thecolorapi.com/id?hex=' + h, { signal: controller.signal });
-    clearTimeout(timeout);
-    const data = await resp.json();
-    const nameEn = data.name?.value || '';
-    document.getElementById('result-name').textContent = traducirColor(nameEn, r, g, b);
+    const llamada = fetch('https://www.thecolorapi.com/id?hex=' + h)
+      .then(r => r.json())
+      .then(data => data.name?.value || '');
+
+    const nameEn = await Promise.race([llamada, timeout]);
+    mostrar(traducirColor(nameEn, r, g, b));
   } catch {
-    document.getElementById('result-name').textContent = nombreBasico(r, g, b);
+    mostrar(nombreBasico(r, g, b));
   }
-  document.getElementById('result-loading').style.display = 'none';
 }
 </script>
 </body>
