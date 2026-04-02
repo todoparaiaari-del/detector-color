@@ -1,361 +1,745 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="ChromaLens">
-  <meta name="theme-color" content="#000000">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>ChromaLens</title>
-  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600&family=Satisfy&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; background: #000; color: #fff; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* ── SPLASH ── */
-    #splash {
-      position: fixed; inset: 0; background: #000;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      z-index: 100;
-      transition: opacity 0.6s ease;
+    :root {
+      --bg: #07070f;
+      --surface: #0f0f1a;
+      --surface2: #14142000;
+      --border: rgba(180, 100, 255, 0.15);
+      --border-hover: rgba(180, 100, 255, 0.5);
+      --accent: #b060ff;
+      --accent2: #ff60b0;
+      --text: #e8e4f4;
+      --text-muted: #5a5570;
+      --text-dim: #3a3550;
     }
-    #splash img { width: 72vw; max-width: 320px; border-radius: 50%; }
-    #splash-name {
-      margin-top: 1.5rem; font-size: 13px; letter-spacing: 0.25em;
-      color: #888; text-transform: uppercase;
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      font-family: 'Rajdhani', sans-serif;
+      overflow: hidden;
+    }
+
+    #app {
+      width: 100%;
+      max-width: 430px;
+      height: 100dvh;
+      height: 100vh;
+      background: var(--bg);
+      position: relative;
+      overflow: hidden;
     }
 
     /* ── SCREENS ── */
-    .screen { position: fixed; inset: 0; display: none; flex-direction: column; background: #fff; }
-    .screen.active { display: flex; }
-
-    /* ── HEADER ── */
-    .header {
-      padding: 1rem 1.25rem 0.75rem;
-      display: flex; align-items: center; gap: 0.75rem;
-      border-bottom: 0.5px solid #e5e5e5; background: #fff;
+    .screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 24px 40px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
     }
-    .header-logo { font-size: 22px; font-weight: 700; color: #000; letter-spacing: -0.03em; }
-    .header-logo span { color: #888; font-weight: 300; }
+    .screen.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    /* ── SCREEN 1: SPLASH ── */
+    #s1 {
+      background: radial-gradient(ellipse 80% 60% at 50% 40%, #1c0836 0%, var(--bg) 70%);
+      gap: 0;
+    }
+    #s1::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 20% 80%, rgba(255, 60, 160, 0.06) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(80, 30, 200, 0.08) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    #splash-logo {
+      width: min(75vw, 300px);
+      height: min(75vw, 300px);
+      object-fit: contain;
+      animation: splashPulse 2s ease-in-out infinite alternate;
+      position: relative;
+      z-index: 1;
+    }
+    @keyframes splashPulse {
+      from { filter: drop-shadow(0 0 20px rgba(180,80,255,0.4)) drop-shadow(0 0 60px rgba(255,60,160,0.2)); }
+      to   { filter: drop-shadow(0 0 40px rgba(180,80,255,0.7)) drop-shadow(0 0 80px rgba(255,60,160,0.35)); }
+    }
+    .splash-bar {
+      position: absolute;
+      bottom: 48px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 6px;
+    }
+    .splash-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--text-dim);
+      animation: dotPulse 1.4s ease-in-out infinite;
+    }
+    .splash-dot:nth-child(2) { animation-delay: 0.2s; }
+    .splash-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes dotPulse {
+      0%, 100% { background: var(--text-dim); transform: scale(1); }
+      50%       { background: var(--accent); transform: scale(1.4); }
+    }
+
+    /* ── SCREEN 2: PALETTE SELECTION ── */
+    #s2 {
+      justify-content: flex-start;
+      padding-top: 52px;
+      gap: 28px;
+      overflow-y: auto;
+    }
+    .app-wordmark {
+      text-align: center;
+      line-height: 1;
+    }
+    .app-wordmark .chroma {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 300;
+      font-size: 42px;
+      letter-spacing: 8px;
+      color: var(--text);
+      text-transform: uppercase;
+    }
+    .app-wordmark .lens {
+      font-family: 'Satisfy', cursive;
+      font-size: 22px;
+      color: var(--accent2);
+      letter-spacing: 2px;
+      display: block;
+      margin-top: -4px;
+    }
+    .app-wordmark .tagline {
+      font-size: 10px;
+      letter-spacing: 4px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-top: 8px;
+    }
+
+    .palette-options { display: flex; flex-direction: column; gap: 14px; width: 100%; }
+
+    .palette-card {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      cursor: pointer;
+      background: var(--surface);
+      transition: border-color 0.2s, background 0.2s, transform 0.15s;
+      position: relative;
+      overflow: hidden;
+    }
+    .palette-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(180,80,255,0.05), transparent);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .palette-card:hover::before, .palette-card.selected::before { opacity: 1; }
+    .palette-card:hover { border-color: var(--border-hover); transform: translateY(-1px); }
+    .palette-card.selected {
+      border-color: var(--accent);
+      background: rgba(180, 60, 255, 0.07);
+    }
+    .palette-card.selected::after {
+      content: '✓';
+      position: absolute;
+      top: 14px; right: 16px;
+      width: 22px; height: 22px;
+      background: var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: white;
+      font-weight: 600;
+    }
+    .palette-card h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: 1px;
+      margin-bottom: 3px;
+    }
+    .palette-card p { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; letter-spacing: 0.5px; }
+    .swatches { display: flex; flex-wrap: wrap; gap: 5px; }
+    .swatch {
+      width: 20px; height: 20px;
+      border-radius: 5px;
+      border: 1px solid rgba(255,255,255,0.08);
+      transition: transform 0.1s;
+    }
+    .swatch:hover { transform: scale(1.2); }
+    .swatch-more {
+      font-size: 10px;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      padding: 0 4px;
+    }
+
+    .btn-main {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #7030d0, #b060ff);
+      border: none;
+      border-radius: 14px;
+      color: white;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn-main:disabled { opacity: 0.3; cursor: default; transform: none; }
+    .btn-main:not(:disabled):hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-main:not(:disabled):active { transform: scale(0.98); }
+    .btn-ghost {
+      width: 100%;
+      padding: 12px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      color: var(--text-muted);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 14px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-ghost:hover { border-color: var(--border-hover); color: var(--text); }
+
+    /* ── SCREEN 3: SOURCE ── */
+    #s3 { gap: 32px; }
+    .screen-header { text-align: center; }
+    .screen-header h2 {
+      font-size: 24px;
+      font-weight: 500;
+      color: var(--text);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+    .screen-header p { font-size: 11px; color: var(--text-muted); letter-spacing: 3px; text-transform: uppercase; margin-top: 6px; }
+
+    .source-cards { display: flex; flex-direction: column; gap: 14px; width: 100%; }
+    .source-card {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 26px 20px;
+      cursor: pointer;
+      background: var(--surface);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      transition: border-color 0.2s, background 0.2s, transform 0.15s;
+      position: relative;
+      overflow: hidden;
+    }
+    .source-card:hover {
+      border-color: var(--border-hover);
+      background: rgba(180, 60, 255, 0.05);
+      transform: translateY(-2px);
+    }
+    .source-card:active { transform: scale(0.98); }
+    .source-icon {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      background: rgba(180, 60, 255, 0.1);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+    .source-card h3 { font-size: 16px; font-weight: 600; color: var(--text); letter-spacing: 1px; }
+    .source-card p { font-size: 12px; color: var(--text-muted); }
+
+    input[type="file"] { display: none; }
+
+    /* ── SCREEN 4: ANALYZE ── */
+    #s4 {
+      justify-content: flex-start;
+      padding: 16px 16px 24px;
+      gap: 12px;
+      overflow: hidden;
+    }
+    .s4-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
     .back-btn {
-      background: none; border: none; padding: 4px 8px 4px 0;
-      font-size: 15px; color: #000; cursor: pointer; display: flex; align-items: center; gap: 4px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text-muted);
+      padding: 7px 14px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 13px;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
     }
-    .back-btn svg { width: 18px; height: 18px; }
+    .back-btn:hover { border-color: var(--border-hover); color: var(--text); }
+    .palette-badge {
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      border: 1px solid rgba(180, 60, 255, 0.3);
+      border-radius: 8px;
+      padding: 4px 10px;
+      background: rgba(180, 60, 255, 0.08);
+    }
+    .s4-logo {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 13px;
+      font-weight: 300;
+      letter-spacing: 4px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+    .tap-hint {
+      font-size: 11px;
+      letter-spacing: 2.5px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
 
-    /* ── SCREEN 1: GAMA ── */
-    #screen-gama { background: #fff; }
-    .gama-body {
-      flex: 1; display: flex; flex-direction: column;
-      padding: 2rem 1.5rem; gap: 1.25rem; overflow-y: auto;
+    .canvas-wrap {
+      width: 100%;
+      flex: 1;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: #0a0a12;
+      position: relative;
+      cursor: crosshair;
+      min-height: 0;
     }
-    .gama-intro { font-size: 13px; color: #888; line-height: 1.6; }
-    .gama-card {
-      border: 1.5px solid #e5e5e5; border-radius: 16px; padding: 1.25rem;
-      cursor: pointer; transition: all 0.15s; background: #fff;
+    #cv {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
     }
-    .gama-card:active { transform: scale(0.98); }
-    .gama-card.selected { border-color: #000; background: #000; }
-    .gama-card-title { font-size: 17px; font-weight: 600; color: #000; margin-bottom: 0.4rem; }
-    .gama-card.selected .gama-card-title { color: #fff; }
-    .gama-card-desc { font-size: 13px; color: #888; line-height: 1.5; }
-    .gama-card.selected .gama-card-desc { color: #aaa; }
-    .gama-swatches { display: flex; gap: 6px; margin-top: 0.75rem; flex-wrap: wrap; }
-    .swatch { width: 22px; height: 22px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.1); }
-    .gama-cta {
-      margin: 0.5rem 0 1.5rem;
-      background: #000; color: #fff; border: none; border-radius: 14px;
-      padding: 16px; font-size: 16px; font-weight: 600; letter-spacing: -0.01em;
-      width: 100%; cursor: pointer; transition: opacity 0.15s;
-    }
-    .gama-cta:active { opacity: 0.7; }
-    .gama-cta:disabled { opacity: 0.3; cursor: default; }
-
-    /* ── SCREEN 2: FOTO ── */
-    #screen-foto { background: #f5f5f5; }
-    .foto-body {
-      flex: 1; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 1.25rem; padding: 2rem;
-    }
-    .foto-icon { width: 72px; height: 72px; background: #000; border-radius: 20px; display: flex; align-items: center; justify-content: center; }
-    .foto-icon svg { width: 36px; height: 36px; fill: #fff; }
-    .foto-title { font-size: 20px; font-weight: 600; color: #000; text-align: center; }
-    .foto-sub { font-size: 14px; color: #888; text-align: center; line-height: 1.5; }
-    .foto-btn {
-      width: 100%; max-width: 320px;
-      padding: 16px; border-radius: 14px; font-size: 16px; font-weight: 600;
-      cursor: pointer; transition: all 0.15s; border: none;
-    }
-    .foto-btn:active { transform: scale(0.97); }
-    .foto-btn-primary { background: #000; color: #fff; }
-    .foto-btn-secondary { background: #fff; color: #000; border: 1.5px solid #e5e5e5; margin-top: -0.25rem; }
-    #file-cam { display: none; }
-    #file-gal { display: none; }
-
-    /* ── SCREEN 3: DETECTOR ── */
-    #screen-detector { background: #000; }
-    #screen-detector .header { background: #000; border-bottom-color: #222; }
-    #screen-detector .header-logo { color: #fff; }
-    #screen-detector .back-btn { color: #fff; }
-    .detector-body { flex: 1; position: relative; overflow: hidden; }
-    #canvas-wrap { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
-    #canvas { max-width: 100%; max-height: 100%; object-fit: contain; cursor: crosshair; display: block; }
-    #crosshair {
-      position: absolute; width: 32px; height: 32px;
-      border: 2.5px solid #fff; border-radius: 50%;
-      box-shadow: 0 0 0 1.5px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.4);
-      pointer-events: none; display: none;
+    .crosshair {
+      position: absolute;
+      width: 24px; height: 24px;
+      border: 2px solid rgba(255,255,255,0.85);
+      border-radius: 50%;
+      pointer-events: none;
       transform: translate(-50%, -50%);
+      display: none;
+      box-shadow: 0 0 8px rgba(0,0,0,0.6);
     }
-    .detector-result {
-      position: absolute; bottom: 0; left: 0; right: 0;
-      background: #fff; border-radius: 20px 20px 0 0;
-      padding: 1.25rem 1.5rem 2rem;
-      transform: translateY(100%);
-      transition: transform 0.3s ease;
+    .crosshair::before, .crosshair::after {
+      content: '';
+      position: absolute;
+      background: rgba(255,255,255,0.7);
     }
-    .detector-result.visible { transform: translateY(0); }
-    .result-row { display: flex; align-items: center; gap: 1rem; }
-    #result-swatch {
-      width: 52px; height: 52px; border-radius: 12px; flex-shrink: 0;
-      border: 0.5px solid rgba(0,0,0,0.1);
+    .crosshair::before { width: 1px; height: 8px; left: 50%; top: -10px; transform: translateX(-50%); }
+    .crosshair::after  { height: 1px; width: 8px; top: 50%; left: -10px; transform: translateY(-50%); }
+
+    .color-result {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px 18px;
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
     }
-    #result-name { font-size: 22px; font-weight: 600; color: #000; letter-spacing: -0.02em; }
-    #result-hex { font-size: 12px; color: #888; font-family: monospace; margin-top: 3px; }
-    #result-loading { font-size: 13px; color: #aaa; margin-top: 4px; display: none; }
-    .hint-text {
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      text-align: center; pointer-events: none;
+    .color-swatch-big {
+      width: 60px; height: 60px;
+      border-radius: 14px;
+      background: #1a1a2e;
+      border: 2px solid var(--border);
+      flex-shrink: 0;
+      transition: background 0.25s ease, border-color 0.25s;
     }
-    .hint-text p { font-size: 14px; color: rgba(255,255,255,0.6); }
-    .hint-dot { width: 40px; height: 40px; border: 2px solid rgba(255,255,255,0.4); border-radius: 50%; margin: 0 auto 0.75rem; }
+    .color-info { flex: 1; min-width: 0; }
+    .color-name {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .color-hex {
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      color: var(--accent);
+      margin-top: 2px;
+      letter-spacing: 1px;
+    }
+    .color-rgb {
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
   </style>
 </head>
 <body>
+<div id="app">
 
-<!-- SPLASH -->
-<div id="splash">
-  <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAoHBwgHBgoICAgLCgoLDhgQDg0NDh0VFhEYIx8lJCIfIiEmKzcvJik0KSEiMEExNDk7Pj4+JS5ESUM8SDc9Pjv/wAALCABAAEABAREA/8QAGwABAAIDAQEAAAAAAAAAAAAAAAQFAgMGAQf/xAA0EAABBAEDAgQEBAcAAAAAAAABAAIDEQQFEiExBhNBUWEiMnGBkRQVQlJioaLB0dLh8f/aAAgBAQAAPwD7OiIiIiIiIiLB3CDNvNbhSSjLAz1W/JxSZPGYh6xMe3eO4gHY6h2oLxBt8BI2ViAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIIEEAggg6IOcyMMmDlPie3cI3YaO3bVYJBHhq8TmhzWvBaeoIRERERERERERF//2Q==" alt="CyberDigital Queens">
-  <p id="splash-name">ChromaLens</p>
-</div>
-
-<!-- SCREEN 1: SELECCIÓN DE GAMA -->
-<div id="screen-gama" class="screen">
-  <div class="header">
-    <div class="header-logo">Chroma<span>Lens</span></div>
+  <!-- SCREEN 1: SPLASH -->
+  <div id="s1" class="screen active">
+    <img id="splash-logo" src="Logo.png" alt="CyberDigital Queens"
+         onerror="this.style.opacity='0.3';this.src='data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'><circle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%231a0836\'/><text x=\'50\' y=\'46\' text-anchor=\'middle\' fill=\'%23e0e0f0\' font-size=\'9\' font-family=\'sans-serif\'>CYBER</text><text x=\'50\' y=\'58\' text-anchor=\'middle\' fill=\'%23ff60b0\' font-size=\'9\' font-family=\'sans-serif\'>DIGITAL</text><text x=\'50\' y=\'70\' text-anchor=\'middle\' fill=\'%23e0e0f0\' font-size=\'9\' font-family=\'sans-serif\'>QUEENS</text></svg>'" />
+    <div class="splash-bar">
+      <div class="splash-dot"></div>
+      <div class="splash-dot"></div>
+      <div class="splash-dot"></div>
+    </div>
   </div>
-  <div class="gama-body">
-    <p class="gama-intro">Selecciona la gama de colores que quieres usar para identificar los tonos de tu foto.</p>
 
-    <div class="gama-card" id="card-basica" onclick="selectGama('basica')">
-      <div class="gama-card-title">Gama básica</div>
-      <div class="gama-card-desc">Colores primarios y secundarios. Ideal para identificaciones rápidas y sencillas.</div>
-      <div class="gama-swatches">
-        <div class="swatch" style="background:#e63946"></div>
-        <div class="swatch" style="background:#2271b3"></div>
-        <div class="swatch" style="background:#f5c842"></div>
-        <div class="swatch" style="background:#e07b39"></div>
-        <div class="swatch" style="background:#3a9a5c"></div>
-        <div class="swatch" style="background:#8a4f9e"></div>
+  <!-- SCREEN 2: PALETTE SELECTION -->
+  <div id="s2" class="screen">
+    <div class="app-wordmark">
+      <div class="chroma">Chroma</div>
+      <span class="lens">Lens</span>
+      <p class="tagline">Color Analyzer</p>
+    </div>
+    <div class="palette-options">
+      <div class="palette-card" id="card-basic" onclick="selectPalette('basic')">
+        <h3>Gama básica</h3>
+        <p>16 colores esenciales CSS</p>
+        <div class="swatches" id="sw-basic"></div>
+      </div>
+      <div class="palette-card" id="card-full" onclick="selectPalette('full')">
+        <h3>Gama completa</h3>
+        <p>+100 colores nombrados en español</p>
+        <div class="swatches" id="sw-full"></div>
       </div>
     </div>
+    <button class="btn-main" id="btn-continue" onclick="goTo(3)" disabled>Continuar</button>
+  </div>
 
-    <div class="gama-card" id="card-completa" onclick="selectGama('completa')">
-      <div class="gama-card-title">Gama completa</div>
-      <div class="gama-card-desc">Base amplia de colores con nombres descriptivos y poéticos. Para análisis detallados.</div>
-      <div class="gama-swatches">
-        <div class="swatch" style="background:#c0392b"></div>
-        <div class="swatch" style="background:#e67e22"></div>
-        <div class="swatch" style="background:#f1c40f"></div>
-        <div class="swatch" style="background:#27ae60"></div>
-        <div class="swatch" style="background:#2980b9"></div>
-        <div class="swatch" style="background:#8e44ad"></div>
-        <div class="swatch" style="background:#e91e8c"></div>
-        <div class="swatch" style="background:#1abc9c"></div>
-        <div class="swatch" style="background:#ecf0f1"></div>
-        <div class="swatch" style="background:#2c3e50"></div>
+  <!-- SCREEN 3: SOURCE -->
+  <div id="s3" class="screen">
+    <div class="screen-header">
+      <h2>Imagen</h2>
+      <p>Selecciona una fuente</p>
+    </div>
+    <div class="source-cards">
+      <div class="source-card" onclick="document.getElementById('cam-input').click()">
+        <div class="source-icon">📷</div>
+        <h3>Cámara</h3>
+        <p>Tomar una foto nueva</p>
+      </div>
+      <div class="source-card" onclick="document.getElementById('file-input').click()">
+        <div class="source-icon">🖼</div>
+        <h3>Archivo guardado</h3>
+        <p>Subir desde el dispositivo</p>
       </div>
     </div>
-
-    <button class="gama-cta" id="btn-continuar" onclick="irAFoto()" disabled>Continuar</button>
+    <input type="file" id="file-input" accept="image/*"              onchange="loadImage(event)" />
+    <input type="file" id="cam-input"  accept="image/*" capture="environment" onchange="loadImage(event)" />
+    <button class="btn-ghost" onclick="goTo(2)">← Volver</button>
   </div>
-</div>
 
-<!-- SCREEN 2: CARGAR FOTO -->
-<div id="screen-foto" class="screen">
-  <div class="header">
-    <button class="back-btn" onclick="irAGama()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-      Gama
-    </button>
-    <div class="header-logo">Chroma<span>Lens</span></div>
-  </div>
-  <div class="foto-body">
-    <div class="foto-icon">
-      <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4" fill="none" stroke="#fff" stroke-width="2"/></svg>
+  <!-- SCREEN 4: ANALYZE -->
+  <div id="s4" class="screen">
+    <div class="s4-header">
+      <button class="back-btn" onclick="goTo(3)">← Volver</button>
+      <span class="palette-badge" id="pal-badge">Básica</span>
+      <span class="s4-logo">ChromaLens</span>
     </div>
-    <div class="foto-title">Carga tu foto</div>
-    <div class="foto-sub">Haz una foto con la cámara o elige una de tu galería para analizar sus colores.</div>
-    <button class="foto-btn foto-btn-primary" onclick="document.getElementById('file-cam').click()">
-      📷 Abrir cámara
-    </button>
-    <button class="foto-btn foto-btn-secondary" onclick="document.getElementById('file-gal').click()">
-      🖼 Elegir de galería
-    </button>
-    <input type="file" id="file-cam" accept="image/*" capture="environment">
-    <input type="file" id="file-gal" accept="image/*">
-  </div>
-</div>
-
-<!-- SCREEN 3: DETECTOR -->
-<div id="screen-detector" class="screen">
-  <div class="header">
-    <button class="back-btn" onclick="irAFoto()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-      Inicio
-    </button>
-    <div class="header-logo" style="color:#fff">Chroma<span style="color:#555">Lens</span></div>
-  </div>
-  <div class="detector-body">
-    <div id="canvas-wrap">
-      <canvas id="canvas"></canvas>
-      <div id="crosshair"></div>
-      <div class="hint-text" id="hint-overlay">
-        <div class="hint-dot"></div>
-        <p>Toca cualquier punto</p>
-        <p>para identificar el color</p>
-      </div>
+    <div class="tap-hint">Toca la imagen para analizar</div>
+    <div class="canvas-wrap" id="canvas-wrap">
+      <canvas id="cv"></canvas>
+      <div class="crosshair" id="crosshair"></div>
     </div>
-    <div class="detector-result" id="result-card">
-      <div class="result-row">
-        <div id="result-swatch"></div>
-        <div>
-          <div id="result-name">—</div>
-          <div id="result-hex"></div>
-          <div id="result-loading">Identificando...</div>
-        </div>
+    <div class="color-result">
+      <div class="color-swatch-big" id="result-box"></div>
+      <div class="color-info">
+        <div class="color-name" id="result-name">— Toca la imagen —</div>
+        <div class="color-hex"  id="result-hex"></div>
+        <div class="color-rgb"  id="result-rgb"></div>
       </div>
     </div>
   </div>
+
 </div>
 
 <script>
-// ── Estado ──
-let gamaSeleccionada = null;
-let img = new Image();
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
+/* ── PALETTES ── */
+const BASIC = [
+  {name:'Negro',       hex:'#000000', r:0,   g:0,   b:0},
+  {name:'Blanco',      hex:'#FFFFFF', r:255, g:255, b:255},
+  {name:'Rojo',        hex:'#FF0000', r:255, g:0,   b:0},
+  {name:'Lima',        hex:'#00FF00', r:0,   g:255, b:0},
+  {name:'Azul',        hex:'#0000FF', r:0,   g:0,   b:255},
+  {name:'Amarillo',    hex:'#FFFF00', r:255, g:255, b:0},
+  {name:'Cian',        hex:'#00FFFF', r:0,   g:255, b:255},
+  {name:'Magenta',     hex:'#FF00FF', r:255, g:0,   b:255},
+  {name:'Plata',       hex:'#C0C0C0', r:192, g:192, b:192},
+  {name:'Gris',        hex:'#808080', r:128, g:128, b:128},
+  {name:'Granate',     hex:'#800000', r:128, g:0,   b:0},
+  {name:'Oliva',       hex:'#808000', r:128, g:128, b:0},
+  {name:'Verde',       hex:'#008000', r:0,   g:128, b:0},
+  {name:'Púrpura',     hex:'#800080', r:128, g:0,   b:128},
+  {name:'Teal',        hex:'#008080', r:0,   g:128, b:128},
+  {name:'Azul marino', hex:'#000080', r:0,   g:0,   b:128}
+];
 
-// ── Splash ──
+const FULL = [
+  {name:'Negro',                    hex:'#000000', r:0,   g:0,   b:0},
+  {name:'Blanco',                   hex:'#FFFFFF', r:255, g:255, b:255},
+  {name:'Rojo',                     hex:'#FF0000', r:255, g:0,   b:0},
+  {name:'Amarillo',                 hex:'#FFFF00', r:255, g:255, b:0},
+  {name:'Cian',                     hex:'#00FFFF', r:0,   g:255, b:255},
+  {name:'Magenta',                  hex:'#FF00FF', r:255, g:0,   b:255},
+  {name:'Plata',                    hex:'#C0C0C0', r:192, g:192, b:192},
+  {name:'Gris',                     hex:'#808080', r:128, g:128, b:128},
+  {name:'Granate',                  hex:'#800000', r:128, g:0,   b:0},
+  {name:'Oliva',                    hex:'#808000', r:128, g:128, b:0},
+  {name:'Verde',                    hex:'#008000', r:0,   g:128, b:0},
+  {name:'Púrpura',                  hex:'#800080', r:128, g:0,   b:128},
+  {name:'Teal',                     hex:'#008080', r:0,   g:128, b:128},
+  {name:'Azul marino',              hex:'#000080', r:0,   g:0,   b:128},
+  {name:'Rojo oscuro',              hex:'#8B0000', r:139, g:0,   b:0},
+  {name:'Marrón',                   hex:'#A52A2A', r:165, g:42,  b:42},
+  {name:'Ladrillo',                 hex:'#B22222', r:178, g:34,  b:34},
+  {name:'Carmesí',                  hex:'#DC143C', r:220, g:20,  b:60},
+  {name:'Tomate',                   hex:'#FF6347', r:255, g:99,  b:71},
+  {name:'Coral',                    hex:'#FF7F50', r:255, g:127, b:80},
+  {name:'Salmón oscuro',            hex:'#E9967A', r:233, g:150, b:122},
+  {name:'Salmón',                   hex:'#FA8072', r:250, g:128, b:114},
+  {name:'Salmón claro',             hex:'#FFA07A', r:255, g:160, b:122},
+  {name:'Naranja rojizo',           hex:'#FF4500', r:255, g:69,  b:0},
+  {name:'Naranja oscuro',           hex:'#FF8C00', r:255, g:140, b:0},
+  {name:'Naranja',                  hex:'#FFA500', r:255, g:165, b:0},
+  {name:'Dorado',                   hex:'#FFD700', r:255, g:215, b:0},
+  {name:'Oro oscuro',               hex:'#B8860B', r:184, g:134, b:11},
+  {name:'Vara de oro',              hex:'#DAA520', r:218, g:165, b:32},
+  {name:'Amarillo claro',           hex:'#FFFFE0', r:255, g:255, b:224},
+  {name:'Limón',                    hex:'#FFFACD', r:255, g:250, b:205},
+  {name:'Caqui claro',              hex:'#F0E68C', r:240, g:230, b:140},
+  {name:'Caqui oscuro',             hex:'#BDB76B', r:189, g:183, b:107},
+  {name:'Verde amarillo',           hex:'#9ACD32', r:154, g:205, b:50},
+  {name:'Verde oliva oscuro',       hex:'#556B2F', r:85,  g:107, b:47},
+  {name:'Verde oliva',              hex:'#6B8E23', r:107, g:142, b:35},
+  {name:'Césped',                   hex:'#7CFC00', r:124, g:252, b:0},
+  {name:'Chartreuse',               hex:'#7FFF00', r:127, g:255, b:0},
+  {name:'Verde lima',               hex:'#ADFF2F', r:173, g:255, b:47},
+  {name:'Verde bosque',             hex:'#228B22', r:34,  g:139, b:34},
+  {name:'Verde lima claro',         hex:'#32CD32', r:50,  g:205, b:50},
+  {name:'Verde pálido',             hex:'#90EE90', r:144, g:238, b:144},
+  {name:'Verde claro',              hex:'#98FB98', r:152, g:251, b:152},
+  {name:'Verde mar oscuro',         hex:'#8FBC8F', r:143, g:188, b:143},
+  {name:'Verde primavera',          hex:'#00FA9A', r:0,   g:250, b:154},
+  {name:'Verde mar',                hex:'#2E8B57', r:46,  g:139, b:87},
+  {name:'Menta medio',              hex:'#66CDAA', r:102, g:205, b:170},
+  {name:'Verde menta',              hex:'#3CB371', r:60,  g:179, b:113},
+  {name:'Turquesa pálido',          hex:'#AFEEEE', r:175, g:238, b:238},
+  {name:'Turquesa',                 hex:'#40E0D0', r:64,  g:224, b:208},
+  {name:'Turquesa medio',           hex:'#48D1CC', r:72,  g:209, b:204},
+  {name:'Azul acero claro',         hex:'#B0E0E6', r:176, g:224, b:230},
+  {name:'Azul celeste',             hex:'#87CEEB', r:135, g:206, b:235},
+  {name:'Azul cielo',               hex:'#87CEFA', r:135, g:206, b:250},
+  {name:'Azul profundo',            hex:'#00BFFF', r:0,   g:191, b:255},
+  {name:'Azul dodger',              hex:'#1E90FF', r:30,  g:144, b:255},
+  {name:'Azul acero',               hex:'#4682B4', r:70,  g:130, b:180},
+  {name:'Azul flor de maíz',        hex:'#6495ED', r:100, g:149, b:237},
+  {name:'Azul cadete',              hex:'#5F9EA0', r:95,  g:158, b:160},
+  {name:'Azul rey',                 hex:'#4169E1', r:65,  g:105, b:225},
+  {name:'Azul medianoche',          hex:'#191970', r:25,  g:25,  b:112},
+  {name:'Añil',                     hex:'#4B0082', r:75,  g:0,   b:130},
+  {name:'Violeta oscuro',           hex:'#9400D3', r:148, g:0,   b:211},
+  {name:'Violeta',                  hex:'#EE82EE', r:238, g:130, b:238},
+  {name:'Violeta azulado',          hex:'#8A2BE2', r:138, g:43,  b:226},
+  {name:'Gris pizarra oscuro',      hex:'#483D8B', r:72,  g:61,  b:139},
+  {name:'Púrpura medio',            hex:'#9370DB', r:147, g:112, b:219},
+  {name:'Ciruela',                  hex:'#DDA0DD', r:221, g:160, b:221},
+  {name:'Orquídea oscura',          hex:'#9932CC', r:153, g:50,  b:204},
+  {name:'Orquídea',                 hex:'#DA70D6', r:218, g:112, b:214},
+  {name:'Ciruela oscura',           hex:'#8B008B', r:139, g:0,   b:139},
+  {name:'Rosa profundo',            hex:'#FF1493', r:255, g:20,  b:147},
+  {name:'Rosa',                     hex:'#FFC0CB', r:255, g:192, b:203},
+  {name:'Rosa claro',               hex:'#FFB6C1', r:255, g:182, b:193},
+  {name:'Rosa intenso',             hex:'#FF69B4', r:255, g:105, b:180},
+  {name:'Violeta rojizo',           hex:'#C71585', r:199, g:21,  b:133},
+  {name:'Blanco antiguo',           hex:'#FAEBD7', r:250, g:235, b:215},
+  {name:'Beige',                    hex:'#F5F5DC', r:245, g:245, b:220},
+  {name:'Lino',                     hex:'#FAF0E6', r:250, g:240, b:230},
+  {name:'Almendra',                 hex:'#FFEBCD', r:255, g:235, b:205},
+  {name:'Trigo',                    hex:'#F5DEB3', r:245, g:222, b:179},
+  {name:'Melocotón',                hex:'#FFDAB9', r:255, g:218, b:185},
+  {name:'Marrón arenoso',           hex:'#F4A460', r:244, g:164, b:96},
+  {name:'Bronceado',                hex:'#D2B48C', r:210, g:180, b:140},
+  {name:'Marrón rosado',            hex:'#BC8F8F', r:188, g:143, b:143},
+  {name:'Silla de montar',          hex:'#8B4513', r:139, g:69,  b:19},
+  {name:'Chocolate',                hex:'#D2691E', r:210, g:105, b:30},
+  {name:'Arena',                    hex:'#C2B280', r:194, g:178, b:128},
+  {name:'Gainsboro',                hex:'#DCDCDC', r:220, g:220, b:220},
+  {name:'Gris claro',               hex:'#D3D3D3', r:211, g:211, b:211},
+  {name:'Gris oscuro',              hex:'#A9A9A9', r:169, g:169, b:169},
+  {name:'Gris pizarra',             hex:'#708090', r:112, g:128, b:144},
+  {name:'Gris pizarra claro',       hex:'#778899', r:119, g:136, b:153},
+  {name:'Nieve',                    hex:'#FFFAFA', r:255, g:250, b:250},
+  {name:'Marfil',                   hex:'#FFFFF0', r:255, g:255, b:240},
+  {name:'Blanco fantasma',          hex:'#F8F8FF', r:248, g:248, b:255},
+  {name:'Menta suave',              hex:'#F5FFFA', r:245, g:255, b:250},
+  {name:'Panal',                    hex:'#F0FFF0', r:240, g:255, b:240},
+  {name:'Azure',                    hex:'#F0FFFF', r:240, g:255, b:255},
+  {name:'Azul Alice',               hex:'#F0F8FF', r:240, g:248, b:255},
+  {name:'Lavanda',                  hex:'#E6E6FA', r:230, g:230, b:250},
+  {name:'Rosa lavanda',             hex:'#FFF0F5', r:255, g:240, b:245}
+];
+
+/* ── STATE ── */
+let palette = null;
+let imgNatW = 0, imgNatH = 0;
+const cv  = document.getElementById('cv');
+const ctx2d = cv.getContext('2d');
+
+/* ── INIT ── */
 window.addEventListener('load', () => {
-  setTimeout(() => {
-    const s = document.getElementById('splash');
-    s.style.opacity = '0';
-    setTimeout(() => {
-      s.style.display = 'none';
-      showScreen('screen-gama');
-    }, 600);
-  }, 2800);
+  buildSwatches();
+  setTimeout(() => goTo(2), 3000);
 });
 
-function showScreen(id) {
+function buildSwatches() {
+  const bEl = document.getElementById('sw-basic');
+  BASIC.forEach(c => bEl.appendChild(mkSwatch(c)));
+
+  const fEl = document.getElementById('sw-full');
+  FULL.slice(0, 28).forEach(c => fEl.appendChild(mkSwatch(c)));
+  const more = document.createElement('span');
+  more.className = 'swatch-more';
+  more.textContent = `+${FULL.length - 28}`;
+  fEl.appendChild(more);
+}
+
+function mkSwatch(c) {
+  const d = document.createElement('div');
+  d.className = 'swatch';
+  d.style.background = c.hex;
+  d.title = c.name;
+  return d;
+}
+
+/* ── NAVIGATION ── */
+function goTo(n) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  document.getElementById('s' + n).classList.add('active');
 }
 
-// ── Gama ──
-function selectGama(g) {
-  gamaSeleccionada = g;
-  document.querySelectorAll('.gama-card').forEach(c => c.classList.remove('selected'));
-  document.getElementById('card-' + g).classList.add('selected');
-  document.getElementById('btn-continuar').disabled = false;
+/* ── PALETTE SELECTION ── */
+function selectPalette(type) {
+  palette = type;
+  document.getElementById('card-basic').classList.toggle('selected', type === 'basic');
+  document.getElementById('card-full').classList.toggle('selected', type === 'full');
+  document.getElementById('btn-continue').disabled = false;
+  document.getElementById('pal-badge').textContent = type === 'basic' ? '16 colores' : 'Completa';
 }
 
-function irAGama() {
-  showScreen('screen-gama');
-}
-
-function irAFoto() {
-  showScreen('screen-foto');
-  document.getElementById('result-card').classList.remove('visible');
-  document.getElementById('crosshair').style.display = 'none';
-  document.getElementById('hint-overlay').style.display = 'block';
-}
-
-// ── Foto ──
-function cargarImagen(file) {
+/* ── IMAGE LOADING ── */
+function loadImage(e) {
+  const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
   reader.onload = ev => {
+    const img = new Image();
     img.onload = () => {
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
-      ctx.drawImage(img, 0, 0);
-      showScreen('screen-detector');
+      imgNatW = img.naturalWidth;
+      imgNatH = img.naturalHeight;
+      cv.width  = imgNatW;
+      cv.height = imgNatH;
+      ctx2d.drawImage(img, 0, 0);
+      goTo(4);
     };
     img.src = ev.target.result;
   };
   reader.readAsDataURL(file);
+  e.target.value = '';
 }
 
-document.getElementById('file-cam').addEventListener('change', e => cargarImagen(e.target.files[0]));
-document.getElementById('file-gal').addEventListener('change', e => cargarImagen(e.target.files[0]));
+/* ── COLOR ANALYSIS ── */
+function dist(a, b) {
+  return Math.sqrt((a.r-b.r)**2 + (a.g-b.g)**2 + (a.b-b.b)**2);
+}
 
-// ── Detector ──
-canvas.addEventListener('click', handleTap);
-canvas.addEventListener('touchend', e => { e.preventDefault(); handleTap(e.changedTouches[0]); });
+function closestColor(r, g, b) {
+  const pal = palette === 'basic' ? BASIC : FULL;
+  return pal.reduce((best, c) => dist({r,g,b}, c) < dist({r,g,b}, best) ? c : best, pal[0]);
+}
 
 function handleTap(e) {
-  const rect = canvas.getBoundingClientRect();
-  const cx = e.clientX - rect.left;
-  const cy = e.clientY - rect.top;
-  const sx = canvas.width / rect.width;
-  const sy = canvas.height / rect.height;
-  const px = Math.round(cx * sx);
-  const py = Math.round(cy * sy);
+  e.preventDefault();
+  const rect  = cv.getBoundingClientRect();
+  const touch = e.touches ? e.touches[0] : e;
+  const sx = (touch.clientX - rect.left) / rect.width;
+  const sy = (touch.clientY - rect.top)  / rect.height;
+  const px = Math.floor(sx * imgNatW);
+  const py = Math.floor(sy * imgNatH);
+  if (px < 0 || py < 0 || px >= imgNatW || py >= imgNatH) return;
 
-  const cross = document.getElementById('crosshair');
-  cross.style.left = cx + 'px';
-  cross.style.top = cy + 'px';
-  cross.style.display = 'block';
+  const [r,g,b] = ctx2d.getImageData(px, py, 1, 1).data;
+  const match = closestColor(r, g, b);
 
-  document.getElementById('hint-overlay').style.display = 'none';
+  document.getElementById('result-box').style.background = match.hex;
+  document.getElementById('result-box').style.borderColor = match.hex;
+  document.getElementById('result-name').textContent = match.name;
+  document.getElementById('result-hex').textContent  = match.hex.toUpperCase();
+  document.getElementById('result-rgb').textContent  = `rgb(${r}, ${g}, ${b})`;
 
-  const pixel = ctx.getImageData(px, py, 1, 1).data;
-  const r = pixel[0], g = pixel[1], b = pixel[2];
-  const hex = '#' + [r,g,b].map(v => v.toString(16).padStart(2,'0')).join('');
-
-  document.getElementById('result-swatch').style.background = hex;
-  document.getElementById('result-hex').textContent = hex.toUpperCase() + ' · RGB(' + r + ', ' + g + ', ' + b + ')';
-  document.getElementById('result-name').textContent = '...';
-  document.getElementById('result-loading').style.display = 'block';
-  document.getElementById('result-card').classList.add('visible');
-
-  askClaude(r, g, b, hex);
+  const dot = document.getElementById('crosshair');
+  dot.style.left = (sx * 100) + '%';
+  dot.style.top  = (sy * 100) + '%';
+  dot.style.display = 'block';
 }
-  async function askClaude(r, g, b, hex) {
-  const mostrar = (nombre) => {
-    document.getElementById('result-name').textContent = nombre;
-    document.getElementById('result-loading').style.display = 'none';
-  };
 
-  const timeout = new Promise((_, reject) =>
-    setTimeout(() => reject('timeout'), 4000)
-  );
-
-  try {
-    const h = hex.replace('#', '');
-    const llamada = fetch('https://www.thecolorapi.com/id?hex=' + h)
-      .then(r => r.json())
-      .then(data => data.name?.value || '');
-
-    const nameEn = await Promise.race([llamada, timeout]);
-    mostrar(traducirColor(nameEn, r, g, b));
-  } catch {
-    mostrar(nombreBasico(r, g, b));
-  }
-}
+const wrap = document.getElementById('canvas-wrap');
+wrap.addEventListener('click',      handleTap);
+wrap.addEventListener('touchstart', handleTap, { passive: false });
 </script>
 </body>
 </html>
