@@ -1,1 +1,348 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="ChromaLens">
+  <meta name="theme-color" content="#000000">
+  <title>ChromaLens</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; background: #000; color: #fff; }
 
+    #splash {
+      position: fixed; inset: 0; background: #000;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      z-index: 100; transition: opacity 0.6s ease;
+    }
+    #splash img { width: 72vw; max-width: 320px; border-radius: 50%; }
+    #splash-name { margin-top: 1.5rem; font-size: 13px; letter-spacing: 0.25em; color: #888; text-transform: uppercase; }
+
+    .screen { position: fixed; inset: 0; display: none; flex-direction: column; background: #fff; }
+    .screen.active { display: flex; }
+
+    .header {
+      padding: 1rem 1.25rem 0.75rem;
+      display: flex; align-items: center; gap: 0.75rem;
+      border-bottom: 0.5px solid #e5e5e5; background: #fff;
+    }
+    .header-logo { font-size: 22px; font-weight: 700; color: #000; letter-spacing: -0.03em; }
+    .header-logo span { color: #888; font-weight: 300; }
+    .back-btn {
+      background: none; border: none; padding: 4px 8px 4px 0;
+      font-size: 15px; color: #000; cursor: pointer; display: flex; align-items: center; gap: 4px;
+    }
+    .back-btn svg { width: 18px; height: 18px; }
+
+    #screen-gama { background: #fff; }
+    .gama-body { flex: 1; display: flex; flex-direction: column; padding: 2rem 1.5rem; gap: 1.25rem; overflow-y: auto; }
+    .gama-intro { font-size: 13px; color: #888; line-height: 1.6; }
+    .gama-card { border: 1.5px solid #e5e5e5; border-radius: 16px; padding: 1.25rem; cursor: pointer; transition: all 0.15s; background: #fff; }
+    .gama-card:active { transform: scale(0.98); }
+    .gama-card.selected { border-color: #000; background: #000; }
+    .gama-card-title { font-size: 17px; font-weight: 600; color: #000; margin-bottom: 0.4rem; }
+    .gama-card.selected .gama-card-title { color: #fff; }
+    .gama-card-desc { font-size: 13px; color: #888; line-height: 1.5; }
+    .gama-card.selected .gama-card-desc { color: #aaa; }
+    .gama-swatches { display: flex; gap: 6px; margin-top: 0.75rem; flex-wrap: wrap; }
+    .swatch { width: 22px; height: 22px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.1); }
+    .gama-cta {
+      margin: 0.5rem 0 1.5rem;
+      background: #000; color: #fff; border: none; border-radius: 14px;
+      padding: 16px; font-size: 16px; font-weight: 600; letter-spacing: -0.01em;
+      width: 100%; cursor: pointer; transition: opacity 0.15s;
+    }
+    .gama-cta:active { opacity: 0.7; }
+    .gama-cta:disabled { opacity: 0.3; cursor: default; }
+
+    #screen-foto { background: #f5f5f5; }
+    .foto-body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.25rem; padding: 2rem; }
+    .foto-icon { width: 72px; height: 72px; background: #000; border-radius: 20px; display: flex; align-items: center; justify-content: center; }
+    .foto-icon svg { width: 36px; height: 36px; fill: #fff; }
+    .foto-title { font-size: 20px; font-weight: 600; color: #000; text-align: center; }
+    .foto-sub { font-size: 14px; color: #888; text-align: center; line-height: 1.5; }
+    .foto-btn { width: 100%; max-width: 320px; padding: 16px; border-radius: 14px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.15s; border: none; }
+    .foto-btn:active { transform: scale(0.97); }
+    .foto-btn-primary { background: #000; color: #fff; }
+    .foto-btn-secondary { background: #fff; color: #000; border: 1.5px solid #e5e5e5; margin-top: -0.25rem; }
+    #file-cam { display: none; }
+    #file-gal { display: none; }
+
+    #screen-detector { background: #000; }
+    #screen-detector .header { background: #000; border-bottom-color: #222; }
+    #screen-detector .header-logo { color: #fff; }
+    #screen-detector .back-btn { color: #fff; }
+    .detector-body { flex: 1; position: relative; overflow: hidden; }
+    #canvas-wrap { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+    #canvas { max-width: 100%; max-height: 100%; object-fit: contain; cursor: crosshair; display: block; }
+    #crosshair {
+      position: absolute; width: 32px; height: 32px;
+      border: 2.5px solid #fff; border-radius: 50%;
+      box-shadow: 0 0 0 1.5px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.4);
+      pointer-events: none; display: none;
+      transform: translate(-50%, -50%);
+    }
+    .detector-result {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: #fff; border-radius: 20px 20px 0 0;
+      padding: 1.25rem 1.5rem 2rem;
+      transform: translateY(100%);
+      transition: transform 0.3s ease;
+    }
+    .detector-result.visible { transform: translateY(0); }
+    .result-row { display: flex; align-items: center; gap: 1rem; }
+    #result-swatch { width: 52px; height: 52px; border-radius: 12px; flex-shrink: 0; border: 0.5px solid rgba(0,0,0,0.1); }
+    #result-name { font-size: 22px; font-weight: 600; color: #000; letter-spacing: -0.02em; }
+    #result-hex { font-size: 12px; color: #888; font-family: monospace; margin-top: 3px; }
+    #result-loading { font-size: 13px; color: #aaa; margin-top: 4px; display: none; }
+    .hint-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none; }
+    .hint-text p { font-size: 14px; color: rgba(255,255,255,0.6); }
+    .hint-dot { width: 40px; height: 40px; border: 2px solid rgba(255,255,255,0.4); border-radius: 50%; margin: 0 auto 0.75rem; }
+  </style>
+</head>
+<body>
+
+<div id="splash">
+  <img src="Logo.png" alt="CyberDigital Queens">
+  <p id="splash-name">ChromaLens</p>
+</div>
+
+<div id="screen-gama" class="screen">
+  <div class="header">
+    <div class="header-logo">Chroma<span>Lens</span></div>
+  </div>
+  <div class="gama-body">
+    <p class="gama-intro">Selecciona la gama de colores que quieres usar para identificar los tonos de tu foto.</p>
+    <div class="gama-card" id="card-basica" onclick="selectGama('basica')">
+      <div class="gama-card-title">Gama básica</div>
+      <div class="gama-card-desc">Colores primarios y secundarios. Ideal para identificaciones rápidas y sencillas.</div>
+      <div class="gama-swatches">
+        <div class="swatch" style="background:#e63946"></div>
+        <div class="swatch" style="background:#2271b3"></div>
+        <div class="swatch" style="background:#f5c842"></div>
+        <div class="swatch" style="background:#e07b39"></div>
+        <div class="swatch" style="background:#3a9a5c"></div>
+        <div class="swatch" style="background:#8a4f9e"></div>
+      </div>
+    </div>
+    <div class="gama-card" id="card-completa" onclick="selectGama('completa')">
+      <div class="gama-card-title">Gama completa</div>
+      <div class="gama-card-desc">Base amplia de colores con nombres descriptivos. Para análisis detallados.</div>
+      <div class="gama-swatches">
+        <div class="swatch" style="background:#c0392b"></div>
+        <div class="swatch" style="background:#e67e22"></div>
+        <div class="swatch" style="background:#f1c40f"></div>
+        <div class="swatch" style="background:#27ae60"></div>
+        <div class="swatch" style="background:#2980b9"></div>
+        <div class="swatch" style="background:#8e44ad"></div>
+        <div class="swatch" style="background:#e91e8c"></div>
+        <div class="swatch" style="background:#1abc9c"></div>
+        <div class="swatch" style="background:#ecf0f1"></div>
+        <div class="swatch" style="background:#2c3e50"></div>
+      </div>
+    </div>
+    <button class="gama-cta" id="btn-continuar" onclick="irAFoto()" disabled>Continuar</button>
+  </div>
+</div>
+
+<div id="screen-foto" class="screen">
+  <div class="header">
+    <button class="back-btn" onclick="irAGama()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      Gama
+    </button>
+    <div class="header-logo">Chroma<span>Lens</span></div>
+  </div>
+  <div class="foto-body">
+    <div class="foto-icon">
+      <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4" fill="none" stroke="#fff" stroke-width="2"/></svg>
+    </div>
+    <div class="foto-title">Carga tu foto</div>
+    <div class="foto-sub">Haz una foto con la cámara o elige una de tu galería para analizar sus colores.</div>
+    <button class="foto-btn foto-btn-primary" onclick="document.getElementById('file-cam').click()">📷 Abrir cámara</button>
+    <button class="foto-btn foto-btn-secondary" onclick="document.getElementById('file-gal').click()">🖼 Elegir de galería</button>
+    <input type="file" id="file-cam" accept="image/*" capture="environment">
+    <input type="file" id="file-gal" accept="image/*">
+  </div>
+</div>
+
+<div id="screen-detector" class="screen">
+  <div class="header">
+    <button class="back-btn" onclick="irAFoto()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      Inicio
+    </button>
+    <div class="header-logo" style="color:#fff">Chroma<span style="color:#555">Lens</span></div>
+  </div>
+  <div class="detector-body">
+    <div id="canvas-wrap">
+      <canvas id="canvas"></canvas>
+      <div id="crosshair"></div>
+      <div class="hint-text" id="hint-overlay">
+        <div class="hint-dot"></div>
+        <p>Toca cualquier punto</p>
+        <p>para identificar el color</p>
+      </div>
+    </div>
+    <div class="detector-result" id="result-card">
+      <div class="result-row">
+        <div id="result-swatch"></div>
+        <div>
+          <div id="result-name">—</div>
+          <div id="result-hex"></div>
+          <div id="result-loading">Identificando...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let gamaSeleccionada = null;
+let img = new Image();
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const s = document.getElementById('splash');
+    s.style.opacity = '0';
+    setTimeout(() => { s.style.display = 'none'; showScreen('screen-gama'); }, 600);
+  }, 2800);
+});
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function selectGama(g) {
+  gamaSeleccionada = g;
+  document.querySelectorAll('.gama-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('card-' + g).classList.add('selected');
+  document.getElementById('btn-continuar').disabled = false;
+}
+
+function irAGama() { showScreen('screen-gama'); }
+
+function irAFoto() {
+  showScreen('screen-foto');
+  document.getElementById('result-card').classList.remove('visible');
+  document.getElementById('crosshair').style.display = 'none';
+  document.getElementById('hint-overlay').style.display = 'block';
+}
+
+function cargarImagen(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    img.onload = () => {
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      ctx.drawImage(img, 0, 0);
+      showScreen('screen-detector');
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+document.getElementById('file-cam').addEventListener('change', e => cargarImagen(e.target.files[0]));
+document.getElementById('file-gal').addEventListener('change', e => cargarImagen(e.target.files[0]));
+
+canvas.addEventListener('click', handleTap);
+canvas.addEventListener('touchend', e => { e.preventDefault(); handleTap(e.changedTouches[0]); });
+
+function handleTap(e) {
+  const rect = canvas.getBoundingClientRect();
+  const cx = e.clientX - rect.left;
+  const cy = e.clientY - rect.top;
+  const sx = canvas.width / rect.width;
+  const sy = canvas.height / rect.height;
+  const px = Math.round(cx * sx);
+  const py = Math.round(cy * sy);
+
+  const cross = document.getElementById('crosshair');
+  cross.style.left = cx + 'px';
+  cross.style.top = cy + 'px';
+  cross.style.display = 'block';
+  document.getElementById('hint-overlay').style.display = 'none';
+
+  const pixel = ctx.getImageData(px, py, 1, 1).data;
+  const r = pixel[0], g = pixel[1], b = pixel[2];
+  const hex = '#' + [r,g,b].map(v => v.toString(16).padStart(2,'0')).join('');
+
+  document.getElementById('result-swatch').style.background = hex;
+  document.getElementById('result-hex').textContent = hex.toUpperCase() + ' · RGB(' + r + ', ' + g + ', ' + b + ')';
+  document.getElementById('result-name').textContent = '...';
+  document.getElementById('result-loading').style.display = 'block';
+  document.getElementById('result-card').classList.add('visible');
+
+  askClaude(r, g, b, hex);
+}
+
+async function askClaude(r, g, b, hex) {
+  const mostrar = (nombre) => {
+    document.getElementById('result-name').textContent = nombre;
+    document.getElementById('result-loading').style.display = 'none';
+  };
+
+  const timeout = new Promise((_, reject) =>
+    setTimeout(() => reject('timeout'), 4000)
+  );
+
+  try {
+    const h = hex.replace('#', '');
+    const llamada = fetch('https://www.thecolorapi.com/id?hex=' + h)
+      .then(res => res.json())
+      .then(data => data.name?.value || '');
+
+    const nameEn = await Promise.race([llamada, timeout]);
+    mostrar(traducirColor(nameEn, r, g, b));
+  } catch {
+    mostrar(nombreBasico(r, g, b));
+  }
+}
+
+function traducirColor(nameEn, r, g, b) {
+  const n = nameEn.toLowerCase();
+  if (n.includes('red') || n.includes('crimson') || n.includes('scarlet')) {
+    if (r > 180 && g > 80 && b < 80) return 'Naranja';
+    return 'Rojo';
+  }
+  if (n.includes('orange')) return 'Naranja';
+  if (n.includes('yellow') || n.includes('gold') || n.includes('amber')) return 'Amarillo dorado';
+  if (n.includes('lime')) return 'Verde lima';
+  if (n.includes('green') || n.includes('olive') || n.includes('mint') || n.includes('sage')) return 'Verde';
+  if (n.includes('teal') || n.includes('cyan') || n.includes('aqua')) return 'Verde azulado';
+  if (n.includes('blue') || n.includes('navy') || n.includes('cobalt') || n.includes('indigo')) return 'Azul';
+  if (n.includes('violet') || n.includes('purple') || n.includes('lilac') || n.includes('lavender') || n.includes('mauve')) return 'Morado';
+  if (n.includes('pink') || n.includes('rose') || n.includes('magenta') || n.includes('fuchsia')) return 'Rosa';
+  if (n.includes('brown') || n.includes('tan') || n.includes('chocolate') || n.includes('coffee')) return 'Marrón';
+  if (n.includes('beige') || n.includes('cream') || n.includes('ivory') || n.includes('linen')) return 'Beige';
+  if (n.includes('white') || n.includes('snow') || n.includes('ghost')) return 'Blanco';
+  if (n.includes('black') || n.includes('ebony') || n.includes('onyx')) return 'Negro';
+  if (n.includes('gray') || n.includes('grey') || n.includes('silver') || n.includes('ash')) return 'Gris';
+  if (n.includes('coral')) return 'Coral';
+  if (n.includes('salmon')) return 'Salmón';
+  if (n.includes('peach')) return 'Melocotón';
+  if (n.includes('turquoise')) return 'Turquesa';
+  return nombreBasico(r, g, b);
+}
+
+function nombreBasico(r, g, b) {
+  if (r > 220 && g > 220 && b > 220) return 'Blanco';
+  if (r < 40 && g < 40 && b < 40) return 'Negro';
+  if (r > g && r > b) return (r > 180 && g > 100 && b < 80) ? 'Naranja' : 'Rojo';
+  if (g > r && g > b) return 'Verde';
+  if (b > r && b > g) return 'Azul';
+  if (r > 180 && g > 180 && b < 80) return 'Amarillo';
+  if (r > 150 && b > 150 && g < 100) return 'Morado';
+  return 'Color mixto';
+}
+</script>
+</body>
+</html>
