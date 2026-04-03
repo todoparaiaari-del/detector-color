@@ -207,11 +207,8 @@ const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
 window.addEventListener('load', () => {
-  setTimeout(() => {
-    const s = document.getElementById('splash');
-    s.style.opacity = '0';
-    setTimeout(() => { s.style.display = 'none'; showScreen('screen-gama'); }, 600);
-  }, 2800);
+  document.getElementById('splash').style.display = 'none';
+  showScreen('screen-gama');
 });
 
 function showScreen(id) {
