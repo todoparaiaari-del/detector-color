@@ -115,6 +115,14 @@
     <div class="header-logo">Chroma<span>Lens</span></div>
   </div>
   <div class="gama-body">
+    <div class="language-selector" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+      <label for="language-select" style="font-size: 13px; color: #888;">Idioma:</label>
+      <select id="language-select" style="padding: 4px 8px; border: 1px solid #e5e5e5; border-radius: 8px; font-size: 13px;">
+        <option value="en">English</option>
+        <option value="es">Español</option>
+        <option value="de">Deutsch</option>
+      </select>
+    </div>
     <p class="gama-intro">Selecciona la gama de colores que quieres usar para identificar los tonos de tu foto.</p>
     <div class="gama-card" id="card-basica" onclick="selectGama('basica')">
       <div class="gama-card-title">Gama básica</div>
@@ -232,79 +240,277 @@
 
 <script>
 let gamaSeleccionada = null;
+let currentLang = 'es';
 let img = new Image();
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
+const translations = {
+  en: {
+    language: "Language",
+    gamaIntro: "Select the color palette you want to use to identify the tones in your photo.",
+    basicTitle: "Basic palette",
+    basicDesc: "13 basic colors. Ideal for quick and simple identifications.",
+    completeTitle: "Complete palette",
+    completeDesc: "32 advanced colors. For detailed analysis.",
+    continue: "Continue",
+    backGama: "Palette",
+    loadPhoto: "Upload your photo",
+    loadDesc: "Take a photo with the camera or choose one from your gallery to analyze its colors.",
+    openCamera: "📷 Open camera",
+    chooseGallery: "🖼 Choose from gallery",
+    backStart: "Start",
+    hintText1: "Touch any point",
+    hintText2: "to identify the color",
+    identifying: "Identifying...",
+    light: " light",
+    dark: " dark",
+    almost: ", almost ",
+    white: "White",
+    black: "Black",
+    gray: "Gray",
+    darkGray: "Dark Gray",
+    lightGray: "Light Gray",
+    red: "Red",
+    maroon: "Maroon",
+    redOrange: "Red Orange",
+    orange: "Orange",
+    gold: "Gold",
+    yellow: "Yellow",
+    cream: "Cream",
+    limeGreen: "Lime Green",
+    green: "Green",
+    darkGreen: "Dark Green",
+    oliveGreen: "Olive Green",
+    emerald: "Emerald",
+    cyan: "Cyan",
+    turquoise: "Turquoise",
+    skyBlue: "Sky Blue",
+    blue: "Blue",
+    navyBlue: "Navy Blue",
+    darkCyan: "Dark Cyan",
+    purple: "Purple",
+    lightPurple: "Light Purple",
+    violet: "Violet",
+    pink: "Pink",
+    magenta: "Magenta",
+    brown: "Brown",
+    coffee: "Coffee",
+    beige: "Beige",
+    ochre: "Ochre",
+    salmon: "Salmon"
+  },
+  es: {
+    language: "Idioma",
+    gamaIntro: "Selecciona la gama de colores que quieres usar para identificar los tonos de tu foto.",
+    basicTitle: "Gama básica",
+    basicDesc: "13 colores básicos. Ideal para identificaciones rápidas y sencillas.",
+    completeTitle: "Gama completa",
+    completeDesc: "32 colores avanzados. Para análisis detallados.",
+    continue: "Continuar",
+    backGama: "Gama",
+    loadPhoto: "Carga tu foto",
+    loadDesc: "Haz una foto con la cámara o elige una de tu galería para analizar sus colores.",
+    openCamera: "📷 Abrir cámara",
+    chooseGallery: "🖼 Elegir de galería",
+    backStart: "Inicio",
+    hintText1: "Toca cualquier punto",
+    hintText2: "para identificar el color",
+    identifying: "Identificando...",
+    light: " claro",
+    dark: " oscuro",
+    almost: ", casi ",
+    white: "Blanco",
+    black: "Negro",
+    gray: "Gris",
+    darkGray: "Gris Oscuro",
+    lightGray: "Gris Claro",
+    red: "Rojo",
+    maroon: "Granate",
+    redOrange: "Rojo anaranjado",
+    orange: "Naranja",
+    gold: "Oro",
+    yellow: "Amarillo",
+    cream: "Crema",
+    limeGreen: "Verde Lima",
+    green: "Verde",
+    darkGreen: "Verde Oscuro",
+    oliveGreen: "Verde Oliva",
+    emerald: "Esmeralda",
+    cyan: "Cian",
+    turquoise: "Turquesa",
+    skyBlue: "Azul Cielo",
+    blue: "Azul",
+    navyBlue: "Azul Marino",
+    darkCyan: "Cian Oscuro",
+    purple: "Morado",
+    lightPurple: "Morado claro",
+    violet: "Violeta",
+    pink: "Rosa",
+    magenta: "Magenta",
+    brown: "Marrón",
+    coffee: "Café",
+    beige: "Beige",
+    ochre: "Ocre",
+    salmon: "Salmón"
+  },
+  de: {
+    language: "Sprache",
+    gamaIntro: "Wähle die Farbpalette aus, die du verwenden möchtest, um die Töne in deinem Foto zu identifizieren.",
+    basicTitle: "Grundpalette",
+    basicDesc: "13 Grundfarben. Ideal für schnelle und einfache Identifizierungen.",
+    completeTitle: "Vollständige Palette",
+    completeDesc: "32 erweiterte Farben. Für detaillierte Analysen.",
+    continue: "Fortfahren",
+    backGama: "Palette",
+    loadPhoto: "Lade dein Foto",
+    loadDesc: "Mache ein Foto mit der Kamera oder wähle eines aus deiner Galerie aus, um die Farben zu analysieren.",
+    openCamera: "📷 Kamera öffnen",
+    chooseGallery: "🖼 Aus Galerie wählen",
+    backStart: "Start",
+    hintText1: "Berühre einen beliebigen Punkt",
+    hintText2: "um die Farbe zu identifizieren",
+    identifying: "Identifizieren...",
+    light: " hell",
+    dark: " dunkel",
+    almost: ", fast ",
+    white: "Weiß",
+    black: "Schwarz",
+    gray: "Grau",
+    darkGray: "Dunkelgrau",
+    lightGray: "Hellgrau",
+    red: "Rot",
+    maroon: "Kastanienbraun",
+    redOrange: "Rot-Orange",
+    orange: "Orange",
+    gold: "Gold",
+    yellow: "Gelb",
+    cream: "Creme",
+    limeGreen: "Limonengrün",
+    green: "Grün",
+    darkGreen: "Dunkelgrün",
+    oliveGreen: "Olivgrün",
+    emerald: "Smaragd",
+    cyan: "Cyan",
+    turquoise: "Türkis",
+    skyBlue: "Himmelblau",
+    blue: "Blau",
+    navyBlue: "Marineblau",
+    darkCyan: "Dunkelcyan",
+    purple: "Lila",
+    lightPurple: "Helllila",
+    violet: "Violett",
+    pink: "Rosa",
+    magenta: "Magenta",
+    brown: "Braun",
+    coffee: "Kaffee",
+    beige: "Beige",
+    ochre: "Ocker",
+    salmon: "Lachs"
+  }
+};
+
 // Tabla de colores para la gama completa, con referencias visuales para facilitar su identificación
 const colorTable = [
     // --- NEUTROS ---
-    { name: "Blanco", rgb: [255, 255, 255] },
-    { name: "Negro", rgb: [0, 0, 0] },
-    { name: "Gris", rgb: [128, 128, 128] },
-    { name: "Gris Oscuro", rgb: [64, 64, 64] },
-    { name: "Gris Claro", rgb: [211, 211, 211] },
+    { nameKey: "white", rgb: [255, 255, 255] },
+    { nameKey: "black", rgb: [0, 0, 0] },
+    { nameKey: "gray", rgb: [128, 128, 128] },
+    { nameKey: "darkGray", rgb: [64, 64, 64] },
+    { nameKey: "lightGray", rgb: [211, 211, 211] },
 
     // --- CÁLIDOS (Rojos, Naranjas, Amarillos) ---
-    { name: "Rojo", rgb: [255, 0, 0] },
-    { name: "Granate", rgb: [128, 0, 0] }, // Rojo muy oscuro
-    { name: "Rojo anaranjado", rgb: [255, 69, 0] },
-    { name: "Naranja", rgb: [255, 165, 0] },
-    { name: "Oro", rgb: [255, 215, 0] },
-    { name: "Amarillo", rgb: [255, 255, 0] },
-    { name: "Crema", rgb: [255, 253, 208] }, // Amarillo muy claro
+    { nameKey: "red", rgb: [255, 0, 0] },
+    { nameKey: "maroon", rgb: [128, 0, 0] },
+    { nameKey: "redOrange", rgb: [255, 69, 0] },
+    { nameKey: "orange", rgb: [255, 165, 0] },
+    { nameKey: "gold", rgb: [255, 215, 0] },
+    { nameKey: "yellow", rgb: [255, 255, 0] },
+    { nameKey: "cream", rgb: [255, 253, 208] },
 
     // --- VERDES ---
-    { name: "Verde Lima", rgb: [116, 250, 2] }, // ¡Ajustado para tu error #74FA02!
-    { name: "Verde", rgb: [0, 255, 0] },
-    { name: "Verde Oscuro", rgb: [0, 100, 0] },
-    { name: "Verde Oliva", rgb: [128, 128, 0] },
-    { name: "Esmeralda", rgb: [0, 201, 87] },
+    { nameKey: "limeGreen", rgb: [116, 250, 2] },
+    { nameKey: "green", rgb: [0, 255, 0] },
+    { nameKey: "darkGreen", rgb: [0, 100, 0] },
+    { nameKey: "oliveGreen", rgb: [128, 128, 0] },
+    { nameKey: "emerald", rgb: [0, 201, 87] },
 
     // --- AZULES Y CIANES ---
-    { name: "Cian", rgb: [0, 255, 255] }, // Evita que el cian parezca blanco
-    { name: "Turquesa", rgb: [64, 224, 208] },
-    { name: "Azul Cielo", rgb: [135, 206, 235] },
-    { name: "Azul", rgb: [0, 0, 255] },
-    { name: "Azul Marino", rgb: [0, 0, 128] },
-    { name: "Cian Oscuro", rgb: [0, 139, 139] },
+    { nameKey: "cyan", rgb: [0, 255, 255] },
+    { nameKey: "turquoise", rgb: [64, 224, 208] },
+    { nameKey: "skyBlue", rgb: [135, 206, 235] },
+    { nameKey: "blue", rgb: [0, 0, 255] },
+    { nameKey: "navyBlue", rgb: [0, 0, 128] },
+    { nameKey: "darkCyan", rgb: [0, 139, 139] },
 
     // --- MORADOS Y ROSAS ---
-    { name: "Morado", rgb: [128, 0, 128] }, // Actualizado
-    { name: "Morado claro", rgb: [147, 112, 219] }, // Evita que parezca azul
-    { name: "Violeta", rgb: [238, 130, 238] },
-    { name: "Rosa", rgb: [255, 192, 203] },
-    { name: "Magenta", rgb: [255, 0, 255] },
+    { nameKey: "purple", rgb: [128, 0, 128] },
+    { nameKey: "lightPurple", rgb: [147, 112, 219] },
+    { nameKey: "violet", rgb: [238, 130, 238] },
+    { nameKey: "pink", rgb: [255, 192, 203] },
+    { nameKey: "magenta", rgb: [255, 0, 255] },
 
     // --- TIERRAS (Marrón, Beige, etc) ---
-    { name: "Marrón", rgb: [139, 69, 19] },
-    { name: "Café", rgb: [75, 54, 33] }, // Marrón muy oscuro
-    { name: "Beige", rgb: [245, 245, 220] }, // Evita que el marrón claro parezca rosa
-    { name: "Ocre", rgb: [204, 119, 34] },
-    { name: "Salmón", rgb: [250, 128, 114] }
+    { nameKey: "brown", rgb: [139, 69, 19] },
+    { nameKey: "coffee", rgb: [75, 54, 33] },
+    { nameKey: "beige", rgb: [245, 245, 220] },
+    { nameKey: "ochre", rgb: [204, 119, 34] },
+    { nameKey: "salmon", rgb: [250, 128, 114] }
 ];
 
 // Tabla de colores para la gama básica, con los colores más comunes y reconocibles para una identificación rápida
-// Versión Básica Ampliada (13 colores) para evitar los errores
 const basicColorTable = [
-    { name: "Blanco", rgb: [255, 255, 255] },
-    { name: "Negro", rgb: [0, 0, 0] },
-    { name: "Gris", rgb: [128, 128, 128] },
-    { name: "Rojo", rgb: [255, 0, 0] },
-    { name: "Verde", rgb: [0, 255, 0] }, // Verde más brillante para evitar el error del amarillo
-    { name: "Azul", rgb: [0, 0, 255] },
-    { name: "Amarillo", rgb: [255, 255, 0] },
-    { name: "Cian", rgb: [0, 255, 255] }, // ¡Fundamental para tus errores!
-    { name: "Naranja", rgb: [255, 165, 0] },
-    { name: "Morado", rgb: [128, 0, 128] }, // Actualizado de Púrpura a Morado
-    { name: "Marrón", rgb: [139, 69, 19] },
-    { name: "Rosa", rgb: [255, 192, 203] },
-    { name: "Beige", rgb: [245, 245, 220] } // Para evitar que el marrón claro parezca rosa
+    { nameKey: "white", rgb: [255, 255, 255] },
+    { nameKey: "black", rgb: [0, 0, 0] },
+    { nameKey: "gray", rgb: [128, 128, 128] },
+    { nameKey: "red", rgb: [200, 0, 0] },     // Rojo más profundo
+    { nameKey: "green", rgb: [0, 140, 0] },   // Verde medio (ancla mejor verdes oscuros)
+    { nameKey: "blue", rgb: [0, 80, 190] },   // Azul balanceado (evita errores con rosa)
+    { nameKey: "yellow", rgb: [255, 220, 0] },
+    { nameKey: "cyan", rgb: [0, 170, 190] },  // Cian más sólido (no tan "blanco")
+    { nameKey: "orange", rgb: [255, 125, 0] },
+    { nameKey: "purple", rgb: [110, 40, 140] }, // Morado real
+    { nameKey: "brown", rgb: [100, 60, 30] },  // Marrón tierra
+    { nameKey: "pink", rgb: [255, 140, 180] },
+    { nameKey: "beige", rgb: [225, 198, 153] } // Beige más cálido
 ];
+
+function detectLang() {
+  const lang = navigator.language.slice(0, 2);
+  return ['en', 'es', 'de'].includes(lang) ? lang : 'en';
+}
+
+function updateTexts(lang) {
+  document.querySelector('.language-selector label').textContent = translations[lang].language + ":";
+  document.querySelector('.gama-intro').textContent = translations[lang].gamaIntro;
+  document.querySelector('#card-basica .gama-card-title').textContent = translations[lang].basicTitle;
+  document.querySelector('#card-basica .gama-card-desc').textContent = translations[lang].basicDesc;
+  document.querySelector('#card-completa .gama-card-title').textContent = translations[lang].completeTitle;
+  document.querySelector('#card-completa .gama-card-desc').textContent = translations[lang].completeDesc;
+  document.getElementById('btn-continuar').textContent = translations[lang].continue;
+  document.querySelector('#screen-foto .back-btn').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg> ' + translations[lang].backGama;
+  document.querySelector('.foto-title').textContent = translations[lang].loadPhoto;
+  document.querySelector('.foto-sub').textContent = translations[lang].loadDesc;
+  document.querySelector('.foto-btn-primary').textContent = translations[lang].openCamera;
+  document.querySelector('.foto-btn-secondary').textContent = translations[lang].chooseGallery;
+  document.querySelector('#screen-detector .back-btn').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg> ' + translations[lang].backStart;
+  const hintPs = document.querySelectorAll('#hint-overlay p');
+  hintPs[0].textContent = translations[lang].hintText1;
+  hintPs[1].textContent = translations[lang].hintText2;
+  document.getElementById('result-loading').textContent = translations[lang].identifying;
+}
 
 window.addEventListener('load', () => {
   document.getElementById('splash').style.display = 'none';
+  currentLang = detectLang();
+  document.getElementById('language-select').value = currentLang;
+  updateTexts(currentLang);
   showScreen('screen-gama');
+});
+
+document.getElementById('language-select').addEventListener('change', (e) => {
+  currentLang = e.target.value;
+  updateTexts(currentLang);
 });
 
 function showScreen(id) {
@@ -377,11 +583,11 @@ function handleTap(e) {
   document.getElementById('result-loading').style.display = 'block';
   document.getElementById('result-card').classList.add('visible');
 
-  identifyColor(r, g, b, hex);
+  identifyColor(r, g, b, hex, currentLang);
 }
 
-function identifyColor(r, g, b, hex) {
-  const traducido = describeColor(r, g, b, gamaSeleccionada === 'completa');
+function identifyColor(r, g, b, hex, lang) {
+  const traducido = describeColor(r, g, b, gamaSeleccionada === 'completa', lang);
   document.getElementById('result-name').textContent = traducido;
   document.getElementById('result-loading').style.display = 'none';
 }
@@ -423,27 +629,35 @@ function getExtendedColorData(r, g, b) {
 // Función para determinar el nombre del color más cercano en la gama completa,
 // con lógica adicional para indicar si es "claro" u "oscuro" y si es "casi" otro color.
 
-function describeColor(r, g, b, modoPreciso = false) {
+function describeColor(r, g, b, modoPreciso = false, lang = 'es') {
     const table = modoPreciso ? colorTable : basicColorTable;
-    const input = getExtendedColorData(r, g, b); // (La función que ya tenemos)
+    const input = getExtendedColorData(r, g, b); // La función que calcula HSL y Lab
+    const texts = translations[lang];
 
     let distances = table.map(color => {
         const target = getExtendedColorData(...color.rgb);
+
+        // 1. Distancia matemática en espacio Lab (Percepción de brillo y tono)
         let dE = Math.sqrt(
             Math.pow(input.lab.l - target.lab.l, 2) +
             Math.pow(input.lab.a - target.lab.a, 2) +
             Math.pow(input.lab.b - target.lab.b, 2)
         );
 
-        // --- SOLUCIÓN: PENALIZACIÓN DE NEUTROS ---
-        // Si el color tiene saturación (>12%), "alejamos" artificialmente
-        // al Blanco, Gris y Negro para que gane un color con nombre.
-        const esNeutro = ["Blanco", "Gris", "Negro"].includes(color.name);
-        if (input.hsl.s > 12 && esNeutro) {
-            dE += 30; // Penalización de distancia
+        // 2. REGLA DE ORO: Penalización de Matiz (Hue)
+        // Si el color no es gris (saturación > 10), penalizamos si el tono es muy diferente.
+        // Esto evita que un verde oscuro se vaya al marrón.
+        if (input.hsl.s > 10 && target.hsl.s > 10) {
+            let hueDiff = Math.abs(input.hsl.h - target.hsl.h);
+            if (hueDiff > 180) hueDiff = 360 - hueDiff;
+            dE += (hueDiff * 0.4); // Factor de peso para el tono
         }
 
-        return { name: color.name, dist: dE };
+        // 3. Evitar que colores vivos se identifiquen como Blanco/Gris/Negro
+        const esNeutro = ["white", "black", "gray"].includes(color.nameKey);
+        if (input.hsl.s > 15 && esNeutro) dE += 45;
+
+        return { nameKey: color.nameKey, dist: dE };
     });
 
     distances.sort((a, b) => a.dist - b.dist);
@@ -451,28 +665,26 @@ function describeColor(r, g, b, modoPreciso = false) {
     const first = distances[0];
     const second = distances[1];
 
-    // Lógica de adjetivos
-    let brillo = "";
-    if (input.hsl.l > 82) brillo = " claro";
-    else if (input.hsl.l < 25) brillo = " oscuro";
+    // Obtener nombres desde tu objeto de traducciones
+    let name = texts[first.nameKey];
+    let intensity = "";
 
-    // Corrección específica para que "Verde claro" no sea "Amarillo"
-    let finalName = first.name;
-    if (finalName === "Verde" && input.hsl.l > 60) brillo = " claro";
+    if (input.hsl.l > 82) intensity = texts.light;
+    else if (input.hsl.l < 30) intensity = texts.dark;
 
-    let result = `${finalName}${brillo}`;
+    let result = `${name}${intensity}`;
 
-    // Umbral para el "casi"
-    const umbralMezcla = modoPreciso ? 12 : 25;
-    if (second && (second.dist - first.dist) < umbralMezcla) {
-        if (first.name !== second.name) {
-            result += `, casi ${second.name.toLowerCase()}`;
+    // Lógica del "casi" (solo si están muy cerca)
+    const umbralCasi = modoPreciso ? 12 : 30;
+    if (second && (second.dist - first.dist) < umbralCasi) {
+        if (first.nameKey !== second.nameKey) {
+            result += `${texts.almost}${texts[second.nameKey].toLowerCase()}`;
         }
     }
 
-    // Guardrail absoluto para extremos de luz
-    if (input.hsl.l < 7) return "Negro";
-    if (input.hsl.l > 96) return "Blanco";
+    // Casos extremos de seguridad
+    if (input.hsl.l < 8) return texts.black;
+    if (input.hsl.l > 96) return texts.white;
 
     return result;
 }
