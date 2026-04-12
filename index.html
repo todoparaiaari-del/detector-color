@@ -254,13 +254,16 @@ canvas.addEventListener('click', handleTap);
 canvas.addEventListener('touchend', e => { e.preventDefault(); handleTap(e.changedTouches[0]); });
 
 function handleTap(e) {
+  const rectWrap = document.getElementById('canvas-wrap').getBoundingClientRect();
+  const cx = e.clientX - rectWrap.left;
+  const cy = e.clientY - rectWrap.top;
   const rect = canvas.getBoundingClientRect();
-  const cx = e.clientX - rect.left;
-  const cy = e.clientY - rect.top;
+  const cxCanvas = e.clientX - rect.left;
+  const cyCanvas = e.clientY - rect.top;
   const sx = canvas.width / rect.width;
   const sy = canvas.height / rect.height;
-  const px = Math.round(cx * sx);
-  const py = Math.round(cy * sy);
+  const px = Math.round(cxCanvas * sx);
+  const py = Math.round(cyCanvas * sy);
 
   const cross = document.getElementById('crosshair');
   cross.style.left = cx + 'px';
