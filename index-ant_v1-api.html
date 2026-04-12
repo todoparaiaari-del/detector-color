@@ -118,60 +118,52 @@
     <p class="gama-intro">Selecciona la gama de colores que quieres usar para identificar los tonos de tu foto.</p>
     <div class="gama-card" id="card-basica" onclick="selectGama('basica')">
       <div class="gama-card-title">Gama básica</div>
-      <div class="gama-card-desc">13 colores básicos. Ideal para identificaciones rápidas y sencillas.</div>
+      <div class="gama-card-desc">Colores primarios y secundarios. Ideal para identificaciones rápidas y sencillas.</div>
       <div class="gama-swatches">
-        <div class="swatch" style="background:#ffffff"></div>
-        <div class="swatch" style="background:#000000"></div>
-        <div class="swatch" style="background:#808080"></div>
-        <div class="swatch" style="background:#ff0000"></div>
-        <div class="swatch" style="background:#00ff00"></div>
-        <div class="swatch" style="background:#0000ff"></div>
-        <div class="swatch" style="background:#ffff00"></div>
-        <div class="swatch" style="background:#00ffff"></div>
-        <div class="swatch" style="background:#ffa500"></div>
-        <div class="swatch" style="background:#800080"></div>
-        <div class="swatch" style="background:#8b4513"></div>
-        <div class="swatch" style="background:#ffc0cb"></div>
-        <div class="swatch" style="background:#f5f5dc"></div>
+        <div class="swatch" style="background:#e63946"></div>
+        <div class="swatch" style="background:#2271b3"></div>
+        <div class="swatch" style="background:#f5c842"></div>
+        <div class="swatch" style="background:#e07b39"></div>
+        <div class="swatch" style="background:#3a9a5c"></div>
+        <div class="swatch" style="background:#8a4f9e"></div>
       </div>
     </div>
     <div class="gama-card" id="card-completa" onclick="selectGama('completa')">
       <div class="gama-card-title">Gama completa</div>
-      <div class="gama-card-desc">32 colores avanzados. Para análisis detallados.</div>
+      <div class="gama-card-desc">Base amplia de colores con nombres descriptivos. Para análisis detallados.</div>
       <div class="gama-swatches">
-        <div class="swatch" style="background:#ffffff"></div>
-        <div class="swatch" style="background:#000000"></div>
-        <div class="swatch" style="background:#808080"></div>
-        <div class="swatch" style="background:#404040"></div>
-        <div class="swatch" style="background:#d3d3d3"></div>
+        <div class="swatch" style="background:#c0392b"></div>
+        <div class="swatch" style="background:#e67e22"></div>
+        <div class="swatch" style="background:#f1c40f"></div>
+        <div class="swatch" style="background:#27ae60"></div>
+        <div class="swatch" style="background:#2980b9"></div>
+        <div class="swatch" style="background:#8e44ad"></div>
+        <div class="swatch" style="background:#e91e8c"></div>
+        <div class="swatch" style="background:#1abc9c"></div>
+        <div class="swatch" style="background:#ecf0f1"></div>
+        <div class="swatch" style="background:#2c3e50"></div>
         <div class="swatch" style="background:#ff0000"></div>
-        <div class="swatch" style="background:#800000"></div>
-        <div class="swatch" style="background:#ff4500"></div>
-        <div class="swatch" style="background:#ffa500"></div>
-        <div class="swatch" style="background:#ffd700"></div>
-        <div class="swatch" style="background:#ffff00"></div>
-        <div class="swatch" style="background:#fffdd0"></div>
-        <div class="swatch" style="background:#74fa02"></div>
         <div class="swatch" style="background:#00ff00"></div>
-        <div class="swatch" style="background:#006400"></div>
-        <div class="swatch" style="background:#808000"></div>
-        <div class="swatch" style="background:#00c957"></div>
-        <div class="swatch" style="background:#00ffff"></div>
-        <div class="swatch" style="background:#40e0d0"></div>
-        <div class="swatch" style="background:#87ceeb"></div>
         <div class="swatch" style="background:#0000ff"></div>
-        <div class="swatch" style="background:#000080"></div>
-        <div class="swatch" style="background:#008b8b"></div>
-        <div class="swatch" style="background:#800080"></div>
-        <div class="swatch" style="background:#9370db"></div>
-        <div class="swatch" style="background:#ee82ee"></div>
-        <div class="swatch" style="background:#ffc0cb"></div>
+        <div class="swatch" style="background:#ffff00"></div>
         <div class="swatch" style="background:#ff00ff"></div>
-        <div class="swatch" style="background:#8b4513"></div>
-        <div class="swatch" style="background:#4b2f20"></div>
-        <div class="swatch" style="background:#f5f5dc"></div>
-        <div class="swatch" style="background:#cc7722"></div>
+        <div class="swatch" style="background:#00ffff"></div>
+        <div class="swatch" style="background:#800000"></div>
+        <div class="swatch" style="background:#808000"></div>
+        <div class="swatch" style="background:#008000"></div>
+        <div class="swatch" style="background:#800080"></div>
+        <div class="swatch" style="background:#008080"></div>
+        <div class="swatch" style="background:#000080"></div>
+        <div class="swatch" style="background:#ff4500"></div>
+        <div class="swatch" style="background:#daa520"></div>
+        <div class="swatch" style="background:#adff2f"></div>
+        <div class="swatch" style="background:#20b2aa"></div>
+        <div class="swatch" style="background:#87ceeb"></div>
+        <div class="swatch" style="background:#dda0dd"></div>
+        <div class="swatch" style="background:#ff69b4"></div>
+        <div class="swatch" style="background:#f0e68c"></div>
         <div class="swatch" style="background:#fa8072"></div>
+        <div class="swatch" style="background:#ffe4b5"></div>
       </div>
     </div>
     <button class="gama-cta" id="btn-continuar" onclick="irAFoto()" disabled>Continuar</button>
@@ -235,72 +227,6 @@ let gamaSeleccionada = null;
 let img = new Image();
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
-
-// Tabla de colores para la gama completa, con referencias visuales para facilitar su identificación
-const colorTable = [
-    // --- NEUTROS ---
-    { name: "Blanco", rgb: [255, 255, 255] },
-    { name: "Negro", rgb: [0, 0, 0] },
-    { name: "Gris", rgb: [128, 128, 128] },
-    { name: "Gris Oscuro", rgb: [64, 64, 64] },
-    { name: "Gris Claro", rgb: [211, 211, 211] },
-
-    // --- CÁLIDOS (Rojos, Naranjas, Amarillos) ---
-    { name: "Rojo", rgb: [255, 0, 0] },
-    { name: "Granate", rgb: [128, 0, 0] }, // Rojo muy oscuro
-    { name: "Rojo anaranjado", rgb: [255, 69, 0] },
-    { name: "Naranja", rgb: [255, 165, 0] },
-    { name: "Oro", rgb: [255, 215, 0] },
-    { name: "Amarillo", rgb: [255, 255, 0] },
-    { name: "Crema", rgb: [255, 253, 208] }, // Amarillo muy claro
-
-    // --- VERDES ---
-    { name: "Verde Lima", rgb: [116, 250, 2] }, // ¡Ajustado para tu error #74FA02!
-    { name: "Verde", rgb: [0, 255, 0] },
-    { name: "Verde Oscuro", rgb: [0, 100, 0] },
-    { name: "Verde Oliva", rgb: [128, 128, 0] },
-    { name: "Esmeralda", rgb: [0, 201, 87] },
-
-    // --- AZULES Y CIANES ---
-    { name: "Cian", rgb: [0, 255, 255] }, // Evita que el cian parezca blanco
-    { name: "Turquesa", rgb: [64, 224, 208] },
-    { name: "Azul Cielo", rgb: [135, 206, 235] },
-    { name: "Azul", rgb: [0, 0, 255] },
-    { name: "Azul Marino", rgb: [0, 0, 128] },
-    { name: "Cian Oscuro", rgb: [0, 139, 139] },
-
-    // --- MORADOS Y ROSAS ---
-    { name: "Morado", rgb: [128, 0, 128] }, // Actualizado
-    { name: "Morado claro", rgb: [147, 112, 219] }, // Evita que parezca azul
-    { name: "Violeta", rgb: [238, 130, 238] },
-    { name: "Rosa", rgb: [255, 192, 203] },
-    { name: "Magenta", rgb: [255, 0, 255] },
-
-    // --- TIERRAS (Marrón, Beige, etc) ---
-    { name: "Marrón", rgb: [139, 69, 19] },
-    { name: "Café", rgb: [75, 54, 33] }, // Marrón muy oscuro
-    { name: "Beige", rgb: [245, 245, 220] }, // Evita que el marrón claro parezca rosa
-    { name: "Ocre", rgb: [204, 119, 34] },
-    { name: "Salmón", rgb: [250, 128, 114] }
-];
-
-// Tabla de colores para la gama básica, con los colores más comunes y reconocibles para una identificación rápida
-// Versión Básica Ampliada (13 colores) para evitar los errores
-const basicColorTable = [
-    { name: "Blanco", rgb: [255, 255, 255] },
-    { name: "Negro", rgb: [0, 0, 0] },
-    { name: "Gris", rgb: [128, 128, 128] },
-    { name: "Rojo", rgb: [255, 0, 0] },
-    { name: "Verde", rgb: [0, 255, 0] }, // Verde más brillante para evitar el error del amarillo
-    { name: "Azul", rgb: [0, 0, 255] },
-    { name: "Amarillo", rgb: [255, 255, 0] },
-    { name: "Cian", rgb: [0, 255, 255] }, // ¡Fundamental para tus errores!
-    { name: "Naranja", rgb: [255, 165, 0] },
-    { name: "Morado", rgb: [128, 0, 128] }, // Actualizado de Púrpura a Morado
-    { name: "Marrón", rgb: [139, 69, 19] },
-    { name: "Rosa", rgb: [255, 192, 203] },
-    { name: "Beige", rgb: [245, 245, 220] } // Para evitar que el marrón claro parezca rosa
-];
 
 window.addEventListener('load', () => {
   document.getElementById('splash').style.display = 'none';
@@ -377,107 +303,69 @@ function handleTap(e) {
   document.getElementById('result-loading').style.display = 'block';
   document.getElementById('result-card').classList.add('visible');
 
-  identifyColor(r, g, b, hex);
+  askClaude(r, g, b, hex);
 }
 
-function identifyColor(r, g, b, hex) {
-  const traducido = describeColor(r, g, b, gamaSeleccionada === 'completa');
-  document.getElementById('result-name').textContent = traducido;
-  document.getElementById('result-loading').style.display = 'none';
+async function askClaude(r, g, b, hex) {
+  const mostrar = (nameEn, traducido) => {
+    document.getElementById('result-name').textContent = traducido + ' (' + nameEn + ')';
+    document.getElementById('result-loading').style.display = 'none';
+  };
+
+  const timeout = new Promise((_, reject) =>
+    setTimeout(() => reject('timeout'), 4000)
+  );
+
+  try {
+    const h = hex.replace('#', '');
+    const llamada = fetch('https://www.thecolorapi.com/id?hex=' + h)
+      .then(res => res.json())
+      .then(data => data.name?.value || '');
+
+    const nameEn = await Promise.race([llamada, timeout]);
+    mostrar(nameEn, traducirColor(nameEn, r, g, b));
+  } catch {
+    mostrar('', nombreBasico(r, g, b));
+  }
 }
 
-// **************************
-// Función para obtener datos extendidos del color (HSL y CIELAB) a partir de sus componentes RGB,
-// útil para futuras mejoras en la identificación de colores o para análisis más detallados.
-function getExtendedColorData(r, g, b) {
-    const r_n = r / 255, g_n = g / 255, b_n = b / 255;
-
-    // --- HSL ---
-    const max = Math.max(r_n, g_n, b_n), min = Math.min(r_n, g_n, b_n);
-    let h, s, l = (max + min) / 2;
-    if (max === min) h = s = 0;
-    else {
-        const d = max - min;
-        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-        if (max === r_n) h = (g_n - b_n) / d + (g_n < b_n ? 6 : 0);
-        else if (max === g_n) h = (b_n - r_n) / d + 2;
-        else h = (r_n - g_n) / d + 4;
-        h /= 6;
-    }
-
-    // --- CIELAB (vía XYZ) ---
-    const f_xyz = (c) => (c > 0.04045 ? Math.pow((c + 0.055) / 1.055, 2.4) : c / 12.92) * 100;
-    const x = f_xyz(r_n) * 0.4124 + f_xyz(g_n) * 0.3576 + f_xyz(b_n) * 0.1805;
-    const y = f_xyz(r_n) * 0.2126 + f_xyz(g_n) * 0.7152 + f_xyz(b_n) * 0.0722;
-    const z = f_xyz(r_n) * 0.0193 + f_xyz(g_n) * 0.1192 + f_xyz(b_n) * 0.9505;
-
-    const f_lab = (t) => (t > 0.008856 ? Math.pow(t, 1/3) : (7.787 * t) + (16 / 116));
-    const labL = (116 * f_lab(y / 100)) - 16;
-    const labA = 500 * (f_lab(x / 95.047) - f_lab(y / 100));
-    const labB = 200 * (f_lab(y / 100) - f_lab(z / 108.883));
-
-    return { hsl: { h: h * 360, s: s * 100, l: l * 100 }, lab: { l: labL, a: labA, b: labB } };
+function traducirColor(nameEn, r, g, b) {
+  const n = nameEn.toLowerCase();
+  if (n.includes('red') || n.includes('crimson') || n.includes('scarlet')) {
+    if (r > 180 && g > 80 && b < 80) return 'Naranja';
+    return 'Rojo';
+  }
+  if (n.includes('orange') || n.includes('orangered')) return 'Naranja';
+  if (n.includes('yellow') || n.includes('gold') || n.includes('amber') || n.includes('goldenrod')) return 'Amarillo dorado';
+  if (n.includes('lime') || n.includes('greenyellow')) return 'Verde lima';
+  if (n.includes('green') || n.includes('olive') || n.includes('mint') || n.includes('sage') || n.includes('darkgreen')) return 'Verde';
+  if (n.includes('teal') || n.includes('cyan') || n.includes('aqua') || n.includes('lightseagreen')) return 'Verde azulado';
+  if (n.includes('blue') || n.includes('navy') || n.includes('cobalt') || n.includes('indigo') || n.includes('skyblue') || n.includes('darkblue')) return 'Azul';
+  if (n.includes('violet') || n.includes('purple') || n.includes('lilac') || n.includes('lavender') || n.includes('mauve') || n.includes('plum')) return 'Morado';
+  if (n.includes('pink') || n.includes('rose') || n.includes('magenta') || n.includes('fuchsia') || n.includes('hotpink')) return 'Rosa';
+  if (n.includes('brown') || n.includes('tan') || n.includes('chocolate') || n.includes('coffee') || n.includes('maroon')) return 'Marrón';
+  if (n.includes('beige') || n.includes('cream') || n.includes('ivory') || n.includes('linen') || n.includes('moccasin')) return 'Beige';
+  if (n.includes('white') || n.includes('snow') || n.includes('ghost')) return 'Blanco';
+  if (n.includes('black') || n.includes('ebony') || n.includes('onyx')) return 'Negro';
+  if (n.includes('gray') || n.includes('grey') || n.includes('silver') || n.includes('ash') || n.includes('darkslategray')) return 'Gris';
+  if (n.includes('coral')) return 'Coral';
+  if (n.includes('salmon')) return 'Salmón';
+  if (n.includes('peach')) return 'Melocotón';
+  if (n.includes('turquoise')) return 'Turquesa';
+  if (n.includes('khaki')) return 'Caqui';
+  return nombreBasico(r, g, b);
 }
 
-// **************************
-// Función para determinar el nombre del color más cercano en la gama completa,
-// con lógica adicional para indicar si es "claro" u "oscuro" y si es "casi" otro color.
-
-function describeColor(r, g, b, modoPreciso = false) {
-    const table = modoPreciso ? colorTable : basicColorTable;
-    const input = getExtendedColorData(r, g, b); // (La función que ya tenemos)
-
-    let distances = table.map(color => {
-        const target = getExtendedColorData(...color.rgb);
-        let dE = Math.sqrt(
-            Math.pow(input.lab.l - target.lab.l, 2) +
-            Math.pow(input.lab.a - target.lab.a, 2) +
-            Math.pow(input.lab.b - target.lab.b, 2)
-        );
-
-        // --- SOLUCIÓN: PENALIZACIÓN DE NEUTROS ---
-        // Si el color tiene saturación (>12%), "alejamos" artificialmente
-        // al Blanco, Gris y Negro para que gane un color con nombre.
-        const esNeutro = ["Blanco", "Gris", "Negro"].includes(color.name);
-        if (input.hsl.s > 12 && esNeutro) {
-            dE += 30; // Penalización de distancia
-        }
-
-        return { name: color.name, dist: dE };
-    });
-
-    distances.sort((a, b) => a.dist - b.dist);
-
-    const first = distances[0];
-    const second = distances[1];
-
-    // Lógica de adjetivos
-    let brillo = "";
-    if (input.hsl.l > 82) brillo = " claro";
-    else if (input.hsl.l < 25) brillo = " oscuro";
-
-    // Corrección específica para que "Verde claro" no sea "Amarillo"
-    let finalName = first.name;
-    if (finalName === "Verde" && input.hsl.l > 60) brillo = " claro";
-
-    let result = `${finalName}${brillo}`;
-
-    // Umbral para el "casi"
-    const umbralMezcla = modoPreciso ? 12 : 25;
-    if (second && (second.dist - first.dist) < umbralMezcla) {
-        if (first.name !== second.name) {
-            result += `, casi ${second.name.toLowerCase()}`;
-        }
-    }
-
-    // Guardrail absoluto para extremos de luz
-    if (input.hsl.l < 7) return "Negro";
-    if (input.hsl.l > 96) return "Blanco";
-
-    return result;
+function nombreBasico(r, g, b) {
+  if (r > 220 && g > 220 && b > 220) return 'Blanco';
+  if (r < 40 && g < 40 && b < 40) return 'Negro';
+  if (r > g && r > b) return (r > 180 && g > 100 && b < 80) ? 'Naranja' : 'Rojo';
+  if (g > r && g > b) return 'Verde';
+  if (b > r && b > g) return 'Azul';
+  if (r > 180 && g > 180 && b < 80) return 'Amarillo';
+  if (r > 150 && b > 150 && g < 100) return 'Morado';
+  return 'Color mixto';
 }
-
-
 </script>
 </body>
 </html>
