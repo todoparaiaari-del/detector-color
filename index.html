@@ -142,6 +142,28 @@
         <div class="swatch" style="background:#1abc9c"></div>
         <div class="swatch" style="background:#ecf0f1"></div>
         <div class="swatch" style="background:#2c3e50"></div>
+        <div class="swatch" style="background:#ff0000"></div>
+        <div class="swatch" style="background:#00ff00"></div>
+        <div class="swatch" style="background:#0000ff"></div>
+        <div class="swatch" style="background:#ffff00"></div>
+        <div class="swatch" style="background:#ff00ff"></div>
+        <div class="swatch" style="background:#00ffff"></div>
+        <div class="swatch" style="background:#800000"></div>
+        <div class="swatch" style="background:#808000"></div>
+        <div class="swatch" style="background:#008000"></div>
+        <div class="swatch" style="background:#800080"></div>
+        <div class="swatch" style="background:#008080"></div>
+        <div class="swatch" style="background:#000080"></div>
+        <div class="swatch" style="background:#ff4500"></div>
+        <div class="swatch" style="background:#daa520"></div>
+        <div class="swatch" style="background:#adff2f"></div>
+        <div class="swatch" style="background:#20b2aa"></div>
+        <div class="swatch" style="background:#87ceeb"></div>
+        <div class="swatch" style="background:#dda0dd"></div>
+        <div class="swatch" style="background:#ff69b4"></div>
+        <div class="swatch" style="background:#f0e68c"></div>
+        <div class="swatch" style="background:#fa8072"></div>
+        <div class="swatch" style="background:#ffe4b5"></div>
       </div>
     </div>
     <button class="gama-cta" id="btn-continuar" onclick="irAFoto()" disabled>Continuar</button>
@@ -285,8 +307,8 @@ function handleTap(e) {
 }
 
 async function askClaude(r, g, b, hex) {
-  const mostrar = (nombre) => {
-    document.getElementById('result-name').textContent = nombre;
+  const mostrar = (nameEn, traducido) => {
+    document.getElementById('result-name').textContent = traducido + ' (' + nameEn + ')';
     document.getElementById('result-loading').style.display = 'none';
   };
 
@@ -301,9 +323,9 @@ async function askClaude(r, g, b, hex) {
       .then(data => data.name?.value || '');
 
     const nameEn = await Promise.race([llamada, timeout]);
-    mostrar(traducirColor(nameEn, r, g, b));
+    mostrar(nameEn, traducirColor(nameEn, r, g, b));
   } catch {
-    mostrar(nombreBasico(r, g, b));
+    mostrar('', nombreBasico(r, g, b));
   }
 }
 
@@ -313,23 +335,24 @@ function traducirColor(nameEn, r, g, b) {
     if (r > 180 && g > 80 && b < 80) return 'Naranja';
     return 'Rojo';
   }
-  if (n.includes('orange')) return 'Naranja';
-  if (n.includes('yellow') || n.includes('gold') || n.includes('amber')) return 'Amarillo dorado';
-  if (n.includes('lime')) return 'Verde lima';
-  if (n.includes('green') || n.includes('olive') || n.includes('mint') || n.includes('sage')) return 'Verde';
-  if (n.includes('teal') || n.includes('cyan') || n.includes('aqua')) return 'Verde azulado';
-  if (n.includes('blue') || n.includes('navy') || n.includes('cobalt') || n.includes('indigo')) return 'Azul';
-  if (n.includes('violet') || n.includes('purple') || n.includes('lilac') || n.includes('lavender') || n.includes('mauve')) return 'Morado';
-  if (n.includes('pink') || n.includes('rose') || n.includes('magenta') || n.includes('fuchsia')) return 'Rosa';
-  if (n.includes('brown') || n.includes('tan') || n.includes('chocolate') || n.includes('coffee')) return 'Marrón';
-  if (n.includes('beige') || n.includes('cream') || n.includes('ivory') || n.includes('linen')) return 'Beige';
+  if (n.includes('orange') || n.includes('orangered')) return 'Naranja';
+  if (n.includes('yellow') || n.includes('gold') || n.includes('amber') || n.includes('goldenrod')) return 'Amarillo dorado';
+  if (n.includes('lime') || n.includes('greenyellow')) return 'Verde lima';
+  if (n.includes('green') || n.includes('olive') || n.includes('mint') || n.includes('sage') || n.includes('darkgreen')) return 'Verde';
+  if (n.includes('teal') || n.includes('cyan') || n.includes('aqua') || n.includes('lightseagreen')) return 'Verde azulado';
+  if (n.includes('blue') || n.includes('navy') || n.includes('cobalt') || n.includes('indigo') || n.includes('skyblue') || n.includes('darkblue')) return 'Azul';
+  if (n.includes('violet') || n.includes('purple') || n.includes('lilac') || n.includes('lavender') || n.includes('mauve') || n.includes('plum')) return 'Morado';
+  if (n.includes('pink') || n.includes('rose') || n.includes('magenta') || n.includes('fuchsia') || n.includes('hotpink')) return 'Rosa';
+  if (n.includes('brown') || n.includes('tan') || n.includes('chocolate') || n.includes('coffee') || n.includes('maroon')) return 'Marrón';
+  if (n.includes('beige') || n.includes('cream') || n.includes('ivory') || n.includes('linen') || n.includes('moccasin')) return 'Beige';
   if (n.includes('white') || n.includes('snow') || n.includes('ghost')) return 'Blanco';
   if (n.includes('black') || n.includes('ebony') || n.includes('onyx')) return 'Negro';
-  if (n.includes('gray') || n.includes('grey') || n.includes('silver') || n.includes('ash')) return 'Gris';
+  if (n.includes('gray') || n.includes('grey') || n.includes('silver') || n.includes('ash') || n.includes('darkslategray')) return 'Gris';
   if (n.includes('coral')) return 'Coral';
   if (n.includes('salmon')) return 'Salmón';
   if (n.includes('peach')) return 'Melocotón';
   if (n.includes('turquoise')) return 'Turquesa';
+  if (n.includes('khaki')) return 'Caqui';
   return nombreBasico(r, g, b);
 }
 
