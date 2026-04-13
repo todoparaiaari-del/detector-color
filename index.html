@@ -245,6 +245,10 @@ let img = new Image();
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
+
+// **********************
+//  TRADUCCIONES
+
 const translations = {
   en: {
     language: "Language",
@@ -409,226 +413,6 @@ const translations = {
     salmon: "Lachs"
   }
 };
-
-// Tabla de colores para la gama completa, con referencias visuales para facilitar su identificación
-const colorTable = [
-    // --- NEUTROS ---
-    { nameKey: "white", rgb: [255, 255, 255] },
-    { nameKey: "black", rgb: [0, 0, 0] },
-    { nameKey: "gray", rgb: [128, 128, 128] },
-    { nameKey: "darkGray", rgb: [64, 64, 64] },
-    { nameKey: "lightGray", rgb: [211, 211, 211] },
-
-    // --- CÁLIDOS (Rojos, Naranjas, Amarillos) ---
-    { nameKey: "red", rgb: [255, 0, 0] },
-    { nameKey: "maroon", rgb: [128, 0, 0] },
-    { nameKey: "redOrange", rgb: [255, 69, 0] },
-    { nameKey: "orange", rgb: [255, 165, 0] },
-    { nameKey: "gold", rgb: [255, 215, 0] },
-    { nameKey: "yellow", rgb: [255, 255, 0] },
-    { nameKey: "cream", rgb: [255, 253, 208] },
-
-    // --- VERDES ---
-    { nameKey: "limeGreen", rgb: [116, 250, 2] },
-    { nameKey: "green", rgb: [0, 255, 0] },
-    { nameKey: "darkGreen", rgb: [0, 100, 0] },
-    { nameKey: "oliveGreen", rgb: [128, 128, 0] },
-    { nameKey: "emerald", rgb: [0, 201, 87] },
-
-    // --- AZULES Y CIANES ---
-    { nameKey: "cyan", rgb: [0, 255, 255] },
-    { nameKey: "turquoise", rgb: [64, 224, 208] },
-    { nameKey: "skyBlue", rgb: [135, 206, 235] },
-    { nameKey: "blue", rgb: [0, 0, 255] },
-    { nameKey: "navyBlue", rgb: [0, 0, 128] },
-    { nameKey: "darkCyan", rgb: [0, 139, 139] },
-
-    // --- MORADOS Y ROSAS ---
-    { nameKey: "purple", rgb: [128, 0, 128] },
-    { nameKey: "lightPurple", rgb: [147, 112, 219] },
-    { nameKey: "violet", rgb: [238, 130, 238] },
-    { nameKey: "pink", rgb: [255, 192, 203] },
-    { nameKey: "magenta", rgb: [255, 0, 255] },
-
-    // --- TIERRAS (Marrón, Beige, etc) ---
-    { nameKey: "brown", rgb: [139, 69, 19] },
-    { nameKey: "coffee", rgb: [75, 54, 33] },
-    { nameKey: "beige", rgb: [245, 245, 220] },
-    { nameKey: "ochre", rgb: [204, 119, 34] },
-    { nameKey: "salmon", rgb: [250, 128, 114] }
-];
-
-// Tabla de colores para la gama básica, con los colores más comunes y reconocibles para una identificación rápida
-const basicColorTable = [
-    { nameKey: "white", rgb: [255, 255, 255] },
-    { nameKey: "black", rgb: [0, 0, 0] },
-    { nameKey: "gray", rgb: [128, 128, 128] },
-    { nameKey: "red", rgb: [200, 0, 0] },     // Rojo más profundo
-    { nameKey: "green", rgb: [0, 140, 0] },   // Verde medio (ancla mejor verdes oscuros)
-    { nameKey: "blue", rgb: [0, 80, 190] },   // Azul balanceado (evita errores con rosa)
-    { nameKey: "yellow", rgb: [255, 220, 0] },
-    { nameKey: "cyan", rgb: [0, 170, 190] },  // Cian más sólido (no tan "blanco")
-    { nameKey: "orange", rgb: [255, 125, 0] },
-    { nameKey: "purple", rgb: [110, 40, 140] }, // Morado real
-    { nameKey: "brown", rgb: [100, 60, 30] },  // Marrón tierra
-    { nameKey: "pink", rgb: [255, 140, 180] },
-    { nameKey: "beige", rgb: [225, 198, 153] } // Beige más cálido
-];
-
-function detectLang() {
-  const lang = navigator.language.slice(0, 2);
-  return ['en', 'es', 'de'].includes(lang) ? lang : 'en';
-}
-
-function updateTexts(lang) {
-  document.querySelector('.language-selector label').textContent = translations[lang].language + ":";
-  document.querySelector('.gama-intro').textContent = translations[lang].gamaIntro;
-  document.querySelector('#card-basica .gama-card-title').textContent = translations[lang].basicTitle;
-  document.querySelector('#card-basica .gama-card-desc').textContent = translations[lang].basicDesc;
-  document.querySelector('#card-completa .gama-card-title').textContent = translations[lang].completeTitle;
-  document.querySelector('#card-completa .gama-card-desc').textContent = translations[lang].completeDesc;
-  document.getElementById('btn-continuar').textContent = translations[lang].continue;
-  document.querySelector('#screen-foto .back-btn').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg> ' + translations[lang].backGama;
-  document.querySelector('.foto-title').textContent = translations[lang].loadPhoto;
-  document.querySelector('.foto-sub').textContent = translations[lang].loadDesc;
-  document.querySelector('.foto-btn-primary').textContent = translations[lang].openCamera;
-  document.querySelector('.foto-btn-secondary').textContent = translations[lang].chooseGallery;
-  document.querySelector('#screen-detector .back-btn').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg> ' + translations[lang].backStart;
-  const hintPs = document.querySelectorAll('#hint-overlay p');
-  hintPs[0].textContent = translations[lang].hintText1;
-  hintPs[1].textContent = translations[lang].hintText2;
-  document.getElementById('result-loading').textContent = translations[lang].identifying;
-}
-
-window.addEventListener('load', () => {
-  document.getElementById('splash').style.display = 'none';
-  currentLang = detectLang();
-  document.getElementById('language-select').value = currentLang;
-  updateTexts(currentLang);
-  showScreen('screen-gama');
-});
-
-document.getElementById('language-select').addEventListener('change', (e) => {
-  currentLang = e.target.value;
-  updateTexts(currentLang);
-});
-
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
-
-function selectGama(g) {
-  gamaSeleccionada = g;
-  document.querySelectorAll('.gama-card').forEach(c => c.classList.remove('selected'));
-  document.getElementById('card-' + g).classList.add('selected');
-  document.getElementById('btn-continuar').disabled = false;
-}
-
-function irAGama() { showScreen('screen-gama'); }
-
-function irAFoto() {
-  showScreen('screen-foto');
-  document.getElementById('result-card').classList.remove('visible');
-  document.getElementById('crosshair').style.display = 'none';
-  document.getElementById('hint-overlay').style.display = 'block';
-}
-
-function cargarImagen(file) {
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    img.onload = () => {
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
-      ctx.drawImage(img, 0, 0);
-      showScreen('screen-detector');
-    };
-    img.src = ev.target.result;
-  };
-  reader.readAsDataURL(file);
-}
-
-document.getElementById('file-cam').addEventListener('change', e => cargarImagen(e.target.files[0]));
-document.getElementById('file-gal').addEventListener('change', e => cargarImagen(e.target.files[0]));
-
-canvas.addEventListener('click', handleTap);
-canvas.addEventListener('touchend', e => { e.preventDefault(); handleTap(e.changedTouches[0]); });
-
-function handleTap(e) {
-  const rectWrap = document.getElementById('canvas-wrap').getBoundingClientRect();
-  const cx = e.clientX - rectWrap.left;
-  const cy = e.clientY - rectWrap.top;
-  const rect = canvas.getBoundingClientRect();
-  const cxCanvas = e.clientX - rect.left;
-  const cyCanvas = e.clientY - rect.top;
-  const sx = canvas.width / rect.width;
-  const sy = canvas.height / rect.height;
-  const px = Math.round(cxCanvas * sx);
-  const py = Math.round(cyCanvas * sy);
-
-  const cross = document.getElementById('crosshair');
-  cross.style.left = cx + 'px';
-  cross.style.top = cy + 'px';
-  cross.style.display = 'block';
-  document.getElementById('hint-overlay').style.display = 'none';
-
-  const pixel = ctx.getImageData(px, py, 1, 1).data;
-  const r = pixel[0], g = pixel[1], b = pixel[2];
-  const hex = '#' + [r,g,b].map(v => v.toString(16).padStart(2,'0')).join('');
-
-  document.getElementById('result-swatch').style.background = hex;
-  document.getElementById('result-hex').textContent = hex.toUpperCase() + ' · RGB(' + r + ', ' + g + ', ' + b + ')';
-  document.getElementById('result-name').textContent = '...';
-  document.getElementById('result-loading').style.display = 'block';
-  document.getElementById('result-card').classList.add('visible');
-
-  identifyColor(r, g, b, hex, currentLang);
-}
-
-function identifyColor(r, g, b, hex, lang) {
-  const traducido = describeColor(r, g, b, gamaSeleccionada === 'completa', lang);
-  document.getElementById('result-name').textContent = traducido;
-  document.getElementById('result-loading').style.display = 'none';
-}
-
-// **************************
-// Función para obtener datos extendidos del color (HSL y CIELAB) a partir de sus componentes RGB,
-// útil para futuras mejoras en la identificación de colores o para análisis más detallados.
-function getExtendedColorData(r, g, b) {
-    const r_n = r / 255, g_n = g / 255, b_n = b / 255;
-
-    // --- HSL ---
-    const max = Math.max(r_n, g_n, b_n), min = Math.min(r_n, g_n, b_n);
-    let h, s, l = (max + min) / 2;
-    if (max === min) h = s = 0;
-    else {
-        const d = max - min;
-        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-        if (max === r_n) h = (g_n - b_n) / d + (g_n < b_n ? 6 : 0);
-        else if (max === g_n) h = (b_n - r_n) / d + 2;
-        else h = (r_n - g_n) / d + 4;
-        h /= 6;
-    }
-
-    // --- CIELAB (vía XYZ) ---
-    const f_xyz = (c) => (c > 0.04045 ? Math.pow((c + 0.055) / 1.055, 2.4) : c / 12.92) * 100;
-    const x = f_xyz(r_n) * 0.4124 + f_xyz(g_n) * 0.3576 + f_xyz(b_n) * 0.1805;
-    const y = f_xyz(r_n) * 0.2126 + f_xyz(g_n) * 0.7152 + f_xyz(b_n) * 0.0722;
-    const z = f_xyz(r_n) * 0.0193 + f_xyz(g_n) * 0.1192 + f_xyz(b_n) * 0.9505;
-
-    const f_lab = (t) => (t > 0.008856 ? Math.pow(t, 1/3) : (7.787 * t) + (16 / 116));
-    const labL = (116 * f_lab(y / 100)) - 16;
-    const labA = 500 * (f_lab(x / 95.047) - f_lab(y / 100));
-    const labB = 200 * (f_lab(y / 100) - f_lab(z / 108.883));
-
-    return { hsl: { h: h * 360, s: s * 100, l: l * 100 }, lab: { l: labL, a: labA, b: labB } };
-}
-
-// **************************
-// Función para determinar el nombre del color más cercano en la gama completa,
-// con lógica adicional para indicar si es "claro" u "oscuro" y si es "casi" otro color.
-
 function describeColor(r, g, b, modoPreciso = false, lang = 'es') {
     const table = modoPreciso ? colorTable : basicColorTable;
     const input = getExtendedColorData(r, g, b); // La función que calcula HSL y Lab
@@ -660,10 +444,17 @@ function describeColor(r, g, b, modoPreciso = false, lang = 'es') {
         return { nameKey: color.nameKey, dist: dE };
     });
 
-    distances.sort((a, b) => a.dist - b.dist);
+    // 2. Construcción del nombre base
+    let baseName = texts[first.nameKey];
+    let intensity = "";
 
-    const first = distances[0];
-    const second = distances[1];
+    const key = first.nameKey.toLowerCase();
+    const isSpecial = ["white", "black", "lightgray", "darkgray"].some(k => key.includes(k));
+
+    if (!isSpecial) {
+        if (input.hsl[2] > 82) intensity = texts.light;
+        else if (input.hsl[2] < 25) intensity = texts.dark;
+    }
 
     // Obtener nombres desde tu objeto de traducciones
     let name = texts[first.nameKey];
