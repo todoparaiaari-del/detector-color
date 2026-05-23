@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -8,8 +8,7 @@
   <meta name="apple-mobile-web-app-title" content="ChromaLens">
   <meta name="theme-color" content="#000000">
   <title>ChromaLens</title>
-  <link rel="manifest" href="./manifest.json">
-  <link rel="icon" href="./Logo.png">
+  <link rel="manifest" href="manifest.json">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; background: #000; color: #fff; }
@@ -114,7 +113,6 @@
 <div id="screen-gama" class="screen">
   <div class="header">
     <div class="header-logo">Chroma<span>Lens</span></div>
-    <div id="version-display" style="margin-left: auto; font-size: 11px; color: #aaa;">v0.31</div>
   </div>
   <div class="gama-body">
     <div class="language-selector" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
@@ -241,7 +239,6 @@
 </div>
 
 <script>
-const VERSION = '0.32';
 let gamaSeleccionada = null;
 let currentLang = 'es';
 let img = new Image();
@@ -253,7 +250,6 @@ const ctx = canvas.getContext('2d');
 const translations = {
   en: {
     language: "Language",
-    version: "Version",
     gamaIntro: "Select the color palette you want to use to identify the tones in your photo.",
     basicTitle: "Basic palette",
     basicDesc: "13 basic colors. Ideal for quick and simple identifications.",
@@ -305,11 +301,10 @@ const translations = {
     beige: "Beige",
     ochre: "Ochre",
     salmon: "Salmon"
-   },
-   es: {
-     language: "Idioma",
-     version: "Versión",
-     gamaIntro: "Selecciona la gama de colores que quieres usar para identificar los tonos de tu foto.",
+  },
+  es: {
+    language: "Idioma",
+    gamaIntro: "Selecciona la gama de colores que quieres usar para identificar los tonos de tu foto.",
     basicTitle: "Gama básica",
     basicDesc: "13 colores básicos. Ideal para identificaciones rápidas y sencillas.",
     completeTitle: "Gama completa",
@@ -360,11 +355,10 @@ const translations = {
     beige: "Beige",
     ochre: "Ocre",
     salmon: "Salmón"
-   },
-   de: {
-     language: "Sprache",
-     version: "Version",
-     gamaIntro: "Wähle die Farbpalette aus, die du verwenden möchtest, um die Töne in deinem Foto zu identifizieren.",
+  },
+  de: {
+    language: "Sprache",
+    gamaIntro: "Wähle die Farbpalette aus, die du verwenden möchtest, um die Töne in deinem Foto zu identifizieren.",
     basicTitle: "Grundpalette",
     basicDesc: "13 Grundfarben. Ideal für schnelle und einfache Identifizierungen.",
     completeTitle: "Vollständige Palette",
@@ -798,61 +792,10 @@ function describeColor(r, g, b, modoPreciso = false, lang = 'es') {
     if (input.hsl[2] < 8) return texts.black;
     if (input.hsl[2] > 97) return texts.white;
 
-     return result;
- }
+    return result;
+}
 
- // Service Worker inline - Autocontenido en el HTML
- if ('serviceWorker' in navigator) {
-   const swCode = `
-     const CACHE_NAME = 'chromalens-v1';
-     const urlsToCache = ['./', './index.html', './manifest.json', './Logo.png'];
-
-     self.addEventListener('install', event => {
-       event.waitUntil(
-         caches.open(CACHE_NAME).then(cache => {
-           return cache.addAll(urlsToCache).catch(() => {});
-         })
-       );
-       self.skipWaiting();
-     });
-
-     self.addEventListener('activate', event => {
-       event.waitUntil(
-         caches.keys().then(cacheNames => {
-           return Promise.all(
-             cacheNames.map(cacheName => {
-               if (cacheName !== CACHE_NAME) return caches.delete(cacheName);
-             })
-           );
-         })
-       );
-       self.clients.claim();
-     });
-
-     self.addEventListener('fetch', event => {
-       if (event.request.method !== 'GET') return;
-       event.respondWith(
-         fetch(event.request).then(response => {
-           if (!response || response.status !== 200 || response.type === 'error') return response;
-           const responseToCache = response.clone();
-           caches.open(CACHE_NAME).then(cache => cache.put(event.request, responseToCache));
-           return response;
-         }).catch(() => {
-           return caches.match(event.request).then(response => response || caches.match('./index.html'));
-         })
-       );
-     });
-   `;
-
-   const swBlob = new Blob([swCode], {type: 'application/javascript'});
-   const swUrl = URL.createObjectURL(swBlob);
-   window.addEventListener('load', () => {
-     navigator.serviceWorker.register(swUrl).catch(() => {});
-   });
- }
 
 </script>
 </body>
 </html>
-
-
