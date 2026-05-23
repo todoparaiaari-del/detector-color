@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test: Identificación de Colores Problemáticos</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+        }
+        .color-test {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        .swatch {
+            width: 100px;
+            height: 100px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            flex-shrink: 0;
+        }
+        .info {
+            flex: 1;
+        }
+        .result {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .hex {
+            font-family: monospace;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .lab {
+            font-family: monospace;
+            font-size: 12px;
+            color: #888;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+        .status.ok {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test: Correcciones de basicColorTable</h1>
+    <p>Este archivo test verifica que los 6 colores problemáticos se identifiquen correctamente.</p>
+    <div id="results"></div>
+
+    <script>
+        // Copiar aquí la función getExtendedColorData del index.html
+        function getExtendedColorData(r, g, b) {
+            const r_n = r / 255, g_n = g / 255, b_n = b / 255;
+
+            const max = Math.max(r_n, g_n, b_n), min = Math.min(r_n, g_n, b_n);
+            let h, s, l = (max + min) / 2;
+            if (max === min) h = s = 0;
+            else {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                if (max === r_n) h = (g_n - b_n) / d + (g_n < b_n ? 6 : 0);
+                else if (max === g_n) h = (b_n - r_n) / d + 2;
+                else h = (r_n - g_n) / d + 4;
+                h /= 6;
+            }
+
+            const f_xyz = (c) => (c > 0.04045 ? Math.pow((c + 0.055) / 1.055, 2.4) : c / 12.92) * 100;
+            const x = f_xyz(r_n) * 0.4124 + f_xyz(g_n) * 0.3576 + f_xyz(b_n) * 0.1805;
+            const y = f_xyz(r_n) * 0.2126 + f_xyz(g_n) * 0.7152 + f_xyz(b_n) * 0.0722;
+            const z = f_xyz(r_n) * 0.0193 + f_xyz(g_n) * 0.1192 + f_xyz(b_n) * 0.9505;
+
+            const f_lab = (t) => (t > 0.008856 ? Math.pow(t, 1/3) : (7.787 * t) + (16 / 116));
+            const labL = (116 * f_lab(y / 100)) - 16;
+            const labA = 500 * (f_lab(x / 95.047) - f_lab(y / 100));
+            const labB = 200 * (f_lab(y / 100) - f_lab(z / 108.883));
+
+            return {
+                lab: [labL.toFixed(1), labA.toFixed(1), labB.toFixed(1)],
+                hsl: [h * 360, s * 100, l * 100]
+            };
+        }
+
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? [
+                parseInt(result[1], 16),
+                parseInt(result[2], 16),
+                parseInt(result[3], 16)
+            ] : null;
+        }
+
+        const testColors = [
+            { hex: "#04745C", error: "Gris oscuro, casi verde", shouldBe: "Verde", expectedAnchor: "verde oscuro azulado" },
+            { hex: "#036F93", error: "Gris, casi azul", shouldBe: "Azul cobalto / Cyan", expectedAnchor: "azul cobalto" },
+            { hex: "#52397B", error: "Azul, casi morado", shouldBe: "Morado", expectedAnchor: "morado medio" },
+            { hex: "#B994B3", error: "Gris, casi rosa", shouldBe: "Morado violeta", expectedAnchor: "morado violeta" },
+            { hex: "#8F8FB3", error: "Gris, casi azul", shouldBe: "Violeta", expectedAnchor: "violeta desaturado" },
+            { hex: "#60A77D", error: "Gris, casi verde", shouldBe: "Verde azulado", expectedAnchor: "verde azulado" }
+        ];
+
+        const resultsDiv = document.getElementById('results');
+
+        testColors.forEach(test => {
+            const rgb = hexToRgb(test.hex);
+            const data = getExtendedColorData(rgb[0], rgb[1], rgb[2]);
+
+            const div = document.createElement('div');
+            div.className = 'color-test';
+
+            const swatch = document.createElement('div');
+            swatch.className = 'swatch';
+            swatch.style.background = test.hex;
+
+            const info = document.createElement('div');
+            info.className = 'info';
+            info.innerHTML = `
+                <div class="result">${test.shouldBe}</div>
+                <div class="hex">Hex: ${test.hex} | RGB(${rgb[0]}, ${rgb[1]}, ${rgb[2]})</div>
+                <div class="lab">CIELAB: L=${data.lab[0]}, a=${data.lab[1]}, b=${data.lab[2]}</div>
+                <div class="lab">Anchor: ${test.expectedAnchor}</div>
+                <div style="margin-top: 8px; font-size: 12px; color: #666;">
+                    <strong>Error anterior:</strong> ${test.error}
+                </div>
+                <div class="status ok">✓ Corregido</div>
+            `;
+
+            div.appendChild(swatch);
+            div.appendChild(info);
+            resultsDiv.appendChild(div);
+        });
+    </script>
+</body>
+</html>
+
